@@ -1,0 +1,1 @@
+{% extends 'base.html' %}{% block title %}Файл слишком большой{% endblock %}{% block content %}<div class="error-page"><strong>413</strong><h1>Файл слишком большой</h1><p>Размер загружаемого файла превышает допустимое ограничение.</p><a class="button" href="{{ url_for('public.index') }}">На главную</a></div>{% endblock %}

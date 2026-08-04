@@ -1,0 +1,10 @@
+{% if breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Хлебные крошки">
+    {% for item in breadcrumbs %}
+        {% if not loop.last and item[1] %}
+            {% if item[1] is string %}<a href="{{ url_for(item[1]) }}">{{ item[0] }}</a>{% else %}<a href="{{ item[1]() }}">{{ item[0] }}</a>{% endif %}
+            <span>›</span>
+        {% else %}<span aria-current="page">{{ item[0] }}</span>{% endif %}
+    {% endfor %}
+</nav>
+{% endif %}

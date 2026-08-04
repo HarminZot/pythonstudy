@@ -1,0 +1,29 @@
+
+@media (max-width: 1050px) {
+    .topbar { grid-template-columns: auto auto 1fr; }
+    .menu-toggle { display: block; }
+    .main-nav { display: none; position: absolute; top: 66px; left: 16px; right: 16px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: #fff; box-shadow: var(--shadow); }
+    .main-nav.open { display: flex; }
+    .auth-zone { margin-left: auto; }
+    .card-grid, .achievement-grid, .admin-grid { grid-template-columns: repeat(2, 1fr); }
+    .task-page, .lesson-layout { grid-template-columns: 1fr; }
+    .lesson-sidebar { position: static; max-height: none; }
+}
+@media (max-width: 760px) {
+    .page-shell { width: min(100% - 20px, 1180px); }
+    .topbar { padding: 12px; gap: 10px; }
+    .auth-zone > a:not(:last-of-type) { display: none; }
+    .hero { grid-template-columns: 1fr; padding: 34px 0 50px; }
+    .hero h1 { font-size: 3rem; }
+    .card-grid, .feature-grid, .dashboard-grid, .achievement-grid, .admin-grid, .settings-form { grid-template-columns: 1fr; }
+    .dashboard-grid .span-2, .span-2 { grid-column: auto; }
+    .course-list article { grid-template-columns: 1fr; }
+    .split { grid-template-columns: 1fr; }
+    .help-layout { grid-template-columns: 1fr; }
+    .toc { position: static; }
+    .form-grid { grid-template-columns: 1fr; }
+    .page-title, .section-heading, .dashboard-header { align-items: flex-start; flex-direction: column; }
+    .footer { flex-direction: column; }
+    .course-hero { padding: 22px; }
+    th, td { min-width: 130px; }
+}
