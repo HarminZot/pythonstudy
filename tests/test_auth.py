@@ -18,13 +18,13 @@ def test_registration(client, app):
         "last_name": "Сидоров",
         "first_name": "Петр",
         "middle_name": "",
-        "email": "new@test.local",
+        "email": "new@example.com",
         "password": "Password123!",
         "password_repeat": "Password123!",
     }, follow_redirects=True)
     assert response.status_code == 200
     with app.app_context():
-        assert User.query.filter_by(email="new@test.local").first() is not None
+        assert User.query.filter_by(email="new@example.com").first() is not None
 
 
 def test_blocked_user_cannot_login(client, app):
