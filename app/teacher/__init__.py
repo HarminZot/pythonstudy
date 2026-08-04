@@ -1,0 +1,5 @@
+from flask import Blueprint
+
+bp = Blueprint("teacher", __name__, url_prefix="/teacher")
+
+from . import routes  # noqa: E402,F401
