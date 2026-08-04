@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*.db
+.env
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+instance/
+storage/uploads/*
+!storage/uploads/.gitkeep
+storage/generated/*
+!storage/generated/.gitkeep
+storage/temp/*
+!storage/temp/.gitkeep
+.DS_Store
