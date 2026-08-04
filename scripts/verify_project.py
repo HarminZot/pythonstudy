@@ -77,6 +77,8 @@ def logical_lines():
     for path in ROOT.rglob("*"):
         if path.suffix not in {".py", ".html", ".css", ".js"} or not path.is_file():
             continue
+        if any(part in {".git", ".venv", "venv", "__pycache__", ".pytest_cache"} for part in path.parts):
+            continue
         for line in path.read_text(encoding="utf-8", errors="ignore").splitlines():
             stripped = line.strip()
             if stripped and not stripped.startswith(("#", "//", "<!--")):
