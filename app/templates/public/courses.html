@@ -1,0 +1,1 @@
+{% extends 'base.html' %}{% block title %}Каталог курсов{% endblock %}{% block content %}<div class="page-title"><h1>Каталог курсов</h1><p>Опубликованные программы изучения Python.</p></div><div class="card-grid">{% for course in courses %}{% include 'public/_course_card.html' %}{% else %}<div class="empty">Нет опубликованных курсов.</div>{% endfor %}</div>{% endblock %}
