@@ -1,0 +1,1 @@
+Миграции создаются командой `flask --app run.py db migrate -m "initial"`, после чего применяются командой `flask --app run.py db upgrade`. Для быстрого демонстрационного запуска также доступна команда `flask --app run.py init-db`.
