@@ -3,6 +3,7 @@
 .task-description, .editor-panel { padding: 22px; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; box-shadow: var(--shadow); }
 .editor-panel { background: #101624; color: #e8ecff; }
 .editor-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.editor-toolbar #draft-status { margin-left: auto; margin-right: 10px; color: #9faad0; font-size: .82rem; }
 .editor-toolbar button { color: #bfc8e8; background: transparent; border: 0; }
 #code-editor { min-height: 390px; border-color: #2c354c; background: #171f31; color: #e9edff; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; line-height: 1.55; tab-size: 4; }
 #custom-input { border-color: #2c354c; background: #171f31; color: #fff; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }

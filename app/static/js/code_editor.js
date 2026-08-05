@@ -2,6 +2,8 @@
 const editor = document.getElementById('code-editor');
 const output = document.getElementById('code-output');
 const input = document.getElementById('custom-input');
+const draftStatus = document.getElementById('draft-status');
+const draftKey = window.DRAFT_KEY;
 const codeMirrorEditor = editor && window.CodeMirror
     ? window.CodeMirror.fromTextArea(editor, {
         mode: 'python',
@@ -22,6 +24,28 @@ const setCode = (value) => {
     }
 };
 
+const savedDraft = draftKey ? window.localStorage.getItem(draftKey) : null;
+if (savedDraft !== null) {
+    setCode(savedDraft);
+    if (draftStatus) draftStatus.textContent = 'Черновик восстановлен';
+}
+
+let draftTimer;
+const saveDraft = () => {
+    if (!draftKey) return;
+    window.clearTimeout(draftTimer);
+    draftTimer = window.setTimeout(() => {
+        window.localStorage.setItem(draftKey, getCode());
+        if (draftStatus) draftStatus.textContent = 'Черновик сохранен';
+    }, 400);
+};
+
+if (codeMirrorEditor) {
+    codeMirrorEditor.on('change', saveDraft);
+} else {
+    editor?.addEventListener('input', saveDraft);
+}
+
 if (!codeMirrorEditor) editor?.addEventListener('keydown', (event) => {
     if (event.key === 'Tab') {
         event.preventDefault();
@@ -34,6 +58,8 @@ if (!codeMirrorEditor) editor?.addEventListener('keydown', (event) => {
 
 document.getElementById('reset-code')?.addEventListener('click', () => {
     setCode(window.STARTER_CODE || '');
+    if (draftKey) window.localStorage.removeItem(draftKey);
+    if (draftStatus) draftStatus.textContent = 'Черновик сброшен';
 });
 
 async function run(endpoint, submit = false) {
@@ -49,6 +75,7 @@ async function run(endpoint, submit = false) {
         return;
     }
     if (submit) {
+        if (draftKey) window.localStorage.removeItem(draftKey);
         output.textContent = `Статус: ${data.status}
 Баллы: ${data.score}%
 Тесты: ${data.passed_tests}/${data.total_tests}`;
