@@ -1,4 +1,6 @@
 from app.services.code_runner import normalize_output, run_python_code
+from app.models import AuditLog
+from .conftest import login
 
 
 def test_normalize_output():
@@ -30,3 +32,16 @@ def test_output_is_limited_without_buffering_in_memory(app):
         result = run_python_code("print('x' * 5000)", memory_mb=256)
         assert len(result.stdout) <= 100
         assert "Вывод программы был сокращен" in result.stderr
+
+
+def test_trial_run_is_written_to_audit_log(client, app):
+    login(client, "student@test.local", "Student123!")
+    response = client.post(
+        "/api/code/run",
+        json={"code": "print('ok')", "task_id": 1},
+    )
+    assert response.status_code == 200
+    with app.app_context():
+        event = AuditLog.query.filter_by(action="code.run", user_id=1).first()
+        assert event is not None
+        assert event.details["status"] == "accepted"

@@ -6,6 +6,7 @@ from ..extensions import db
 from ..models import CourseEnrollment, Lesson, LessonProgress, Notification, ProgrammingTask, Submission
 from ..services.achievement_service import evaluate_achievements
 from ..services.access_service import lesson_is_unlocked
+from ..services.audit_service import log_action
 from ..services.code_runner import run_python_code
 from ..services.grading_service import grade_submission
 from ..services.helpers import utcnow
@@ -39,6 +40,13 @@ def code_run():
         memory_mb=task.memory_limit_mb if task else None,
         allowed_imports=task.allowed_imports if task else [],
     )
+    log_action(
+        "code.run",
+        "programming_task" if task else "code_editor",
+        task.id if task else None,
+        details={"status": result.status, "execution_time_ms": result.execution_time_ms},
+    )
+    db.session.commit()
     return jsonify(result.to_dict())
 
 
@@ -54,6 +62,12 @@ def task_submit(task_id):
     db.session.add(submission)
     db.session.flush()
     grade_submission(submission)
+    log_action(
+        "code.submit",
+        "submission",
+        submission.id,
+        details={"status": submission.status, "score": float(submission.score)},
+    )
     db.session.commit()
     return jsonify({
         "id": submission.id,
