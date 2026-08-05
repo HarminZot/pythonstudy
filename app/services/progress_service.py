@@ -1,7 +1,9 @@
 from decimal import Decimal
 
+from sqlalchemy import func, or_
+
 from ..extensions import db
-from ..models import CourseEnrollment, CourseModule, Lesson, LessonProgress, ProgrammingTask, Submission
+from ..models import CourseEnrollment, CourseModule, Lesson, LessonProgress, ProgrammingTask, Quiz, QuizAttempt, Submission
 from .helpers import utcnow
 
 
@@ -27,7 +29,18 @@ def calculate_course_progress(user_id, course_id):
         )
         .all()
     )
-    total = len(lessons) + len(tasks)
+    quizzes = (
+        Quiz.query
+        .outerjoin(Lesson, Quiz.lesson_id == Lesson.id)
+        .outerjoin(CourseModule, Lesson.module_id == CourseModule.id)
+        .filter(
+            Quiz.is_required.is_(True),
+            Quiz.status == "published",
+            or_(Quiz.course_id == course_id, CourseModule.course_id == course_id),
+        )
+        .all()
+    )
+    total = len(lessons) + len(tasks) + len(quizzes)
     if total == 0:
         return Decimal("0.00")
 
@@ -46,12 +59,33 @@ def calculate_course_progress(user_id, course_id):
         if Submission.query.filter_by(user_id=user_id, task_id=task.id, status="accepted").first()
     )
 
-    percent = Decimal(str((completed_lessons + completed_tasks) * 100 / total)).quantize(Decimal("0.01"))
+    passed_quizzes = 0
+    best_quiz_scores = []
+    for quiz in quizzes:
+        best_score = (
+            db.session.query(func.max(QuizAttempt.score))
+            .filter(
+                QuizAttempt.user_id == user_id,
+                QuizAttempt.quiz_id == quiz.id,
+                QuizAttempt.status == "completed",
+            )
+            .scalar()
+        )
+        if best_score is not None:
+            numeric_score = float(best_score)
+            best_quiz_scores.append(numeric_score)
+            if numeric_score >= quiz.passing_score:
+                passed_quizzes += 1
+
+    percent = Decimal(str((completed_lessons + completed_tasks + passed_quizzes) * 100 / total)).quantize(Decimal("0.01"))
     enrollment = CourseEnrollment.query.filter_by(user_id=user_id, course_id=course_id).first()
     if enrollment:
+        final_score = Decimal(str(sum(best_quiz_scores) / len(best_quiz_scores))).quantize(Decimal("0.01")) if best_quiz_scores else None
         enrollment.progress_percent = percent
-        enrollment.status = "completed" if percent >= 100 else "in_progress"
-        if percent >= 100 and not enrollment.completed_at:
+        enrollment.final_score = final_score
+        meets_course_score = final_score is None or final_score >= enrollment.course.passing_score
+        enrollment.status = "completed" if percent >= 100 and meets_course_score else "in_progress"
+        if enrollment.status == "completed" and not enrollment.completed_at:
             enrollment.completed_at = utcnow()
     return percent
 
