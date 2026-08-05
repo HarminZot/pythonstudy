@@ -62,3 +62,21 @@ def test_quiz_time_limit_creates_expired_attempt(client, app):
         attempt = QuizAttempt.query.filter_by(quiz_id=quiz_id, user_id=1).first()
         assert attempt.status == "expired"
         assert float(attempt.score) == 0
+
+
+def test_quiz_history_and_answer_review(client, app):
+    quiz_id = create_quiz(app)
+    with app.app_context():
+        quiz = db.session.get(Quiz, quiz_id)
+        answers = {f"question_{question.id}": str(question.options[0].id) for question in quiz.questions}
+    login(client, "student@test.local", "Student123!")
+    response = client.post(f"/student/quizzes/{quiz_id}", data=answers)
+    assert response.status_code == 302
+    with app.app_context():
+        attempt = QuizAttempt.query.filter_by(quiz_id=quiz_id, user_id=1).first()
+        attempt_id = attempt.id
+    history = client.get("/student/quiz-attempts").get_data(as_text=True)
+    assert "Проверочный тест" in history
+    review = client.get(f"/student/quiz-results/{attempt_id}").get_data(as_text=True)
+    assert "Разбор ответов" in review
+    assert "Правильный ответ" in review

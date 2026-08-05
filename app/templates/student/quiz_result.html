@@ -1,1 +1,25 @@
-{% extends 'base.html' %}{% block title %}Результат теста{% endblock %}{% block content %}<div class="result-card"><p class="eyebrow">Результат теста</p><h1>{{ attempt.quiz.title }}</h1><div class="result-circle">{{ attempt.score }}%</div><p>Правильных ответов: {{ attempt.correct_answers }} из {{ attempt.total_questions }}</p><p class="{{ 'success-text' if attempt.score >= attempt.quiz.passing_score else 'danger-text' }}">{% if attempt.score >= attempt.quiz.passing_score %}Тест успешно пройден{% else %}Проходной балл не набран{% endif %}</p><a class="button" href="{{ url_for('student.progress') }}">К прогрессу</a></div>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Результат теста{% endblock %}
+{% block content %}
+<div class="result-card">
+    <p class="eyebrow">Результат теста</p>
+    <h1>{{ attempt.quiz.title }}</h1>
+    <div class="result-circle">{{ attempt.score }}%</div>
+    <p>Правильных ответов: {{ attempt.correct_answers }} из {{ attempt.total_questions }}</p>
+    <p class="{{ 'success-text' if attempt.score >= attempt.quiz.passing_score else 'danger-text' }}">{% if attempt.score >= attempt.quiz.passing_score %}Тест успешно пройден{% elif attempt.status == 'expired' %}Время прохождения истекло{% else %}Проходной балл не набран{% endif %}</p>
+    <a class="button" href="{{ url_for('student.quiz_attempts') }}">К истории тестов</a>
+</div>
+{% if answer_review %}
+<section class="panel answer-review">
+    <h2>Разбор ответов</h2>
+    {% for item in answer_review %}
+        <article class="{{ 'passed' if item.answer.is_correct else 'failed' }}">
+            <h3>{{ loop.index }}. {{ item.answer.question.question_text }}</h3>
+            <p><strong>Ваш ответ:</strong> {{ item.selected|join(', ') or 'Нет ответа' }}</p>
+            <p><strong>Правильный ответ:</strong> {{ item.correct|join(', ') }}</p>
+            {% if item.answer.question.explanation %}<p>{{ item.answer.question.explanation }}</p>{% endif %}
+        </article>
+    {% endfor %}
+</section>
+{% endif %}
+{% endblock %}

@@ -20,6 +20,7 @@
             <a href="{{ url_for('student.dashboard') }}">Личный кабинет</a>
             <a href="{{ url_for('student.my_courses') }}">Мои курсы</a>
             <a href="{{ url_for('student.submissions') }}">Решения</a>
+            <a href="{{ url_for('student.quiz_attempts') }}">Тесты</a>
             <a href="{{ url_for('student.progress') }}">Прогресс</a>
             <a href="{{ url_for('student.achievements') }}">Достижения</a>
         {% elif current_user.is_authenticated and current_user.has_role('teacher') %}

@@ -215,7 +215,34 @@ def quiz(quiz_id):
 @roles_required("student")
 def quiz_result(attempt_id):
     attempt = QuizAttempt.query.filter_by(id=attempt_id, user_id=current_user.id).first_or_404()
-    return render_template("student/quiz_result.html", attempt=attempt, breadcrumbs=[("Главная", "public.index"), ("Результат теста", None)])
+    answer_review = []
+    if attempt.quiz.show_correct_answers:
+        for answer in attempt.answers:
+            selected_ids = set(answer.selected_option_ids or [])
+            selected_options = [option.option_text for option in answer.question.options if option.id in selected_ids]
+            correct_options = [option.option_text for option in answer.question.options if option.is_correct]
+            answer_review.append({
+                "answer": answer,
+                "selected": selected_options or ([answer.answer_text] if answer.answer_text else []),
+                "correct": correct_options or ([answer.question.correct_text_answer] if answer.question.correct_text_answer else []),
+            })
+    return render_template(
+        "student/quiz_result.html",
+        attempt=attempt,
+        answer_review=answer_review,
+        breadcrumbs=[("Главная", "public.index"), ("История тестов", "student.quiz_attempts"), ("Результат теста", None)],
+    )
+
+
+@bp.route("/quiz-attempts")
+@roles_required("student")
+def quiz_attempts():
+    attempts = QuizAttempt.query.filter_by(user_id=current_user.id).order_by(QuizAttempt.started_at.desc()).all()
+    return render_template(
+        "student/quiz_attempts.html",
+        attempts=attempts,
+        breadcrumbs=[("Главная", "public.index"), ("История тестов", None)],
+    )
 
 
 @bp.route("/progress")
