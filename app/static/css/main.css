@@ -163,6 +163,8 @@ th { color: #475467; background: #f8f9fc; font-size: .85rem; }
 .settings-form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
 .settings-form > .button { width: fit-content; }
 .search-form { display: flex; flex-direction: row; gap: 8px; }
+.catalog-filters { display: grid; grid-template-columns: minmax(220px, 2fr) repeat(3, minmax(150px, 1fr)) auto; gap: 12px; align-items: end; margin: 20px 0 28px; padding: 18px; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; }
+.catalog-filters .button { margin-bottom: 1px; }
 .empty { padding: 28px; border: 1px dashed #bbc4d5; border-radius: 14px; color: var(--muted); background: rgba(255,255,255,.55); }
 .error-page { width: min(600px, 100%); margin: 70px auto; text-align: center; }
 .error-page > strong { font-size: 6rem; line-height: 1; color: #ccd3e4; }

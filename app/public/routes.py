@@ -1,11 +1,11 @@
 from flask import abort, flash, redirect, render_template, request, send_file, url_for
 from flask_login import current_user
-from sqlalchemy import or_
+from sqlalchemy import func, or_, select
 
 from . import bp
 from .forms import FeedbackForm
 from ..extensions import db
-from ..models import Course, CourseEnrollment, FeedbackRequest, LessonMaterial, UploadedFile
+from ..models import Course, CourseEnrollment, FeedbackRequest, LessonMaterial, UploadedFile, User
 from ..services.audit_service import log_action
 from ..services.file_service import save_upload
 
@@ -19,15 +19,46 @@ def index():
 @bp.route("/courses")
 def courses():
     search = request.args.get("q", "").strip()
+    difficulty = request.args.get("difficulty", "").strip()
+    teacher_id = request.args.get("teacher", type=int)
+    sort = request.args.get("sort", "title")
     query = Course.query.filter_by(status="published")
     if search:
         pattern = f"%{search}%"
         query = query.filter(or_(Course.title.ilike(pattern), Course.short_description.ilike(pattern)))
-    courses = query.order_by(Course.title).all()
+    if difficulty in {"beginner", "intermediate", "advanced"}:
+        query = query.filter(Course.difficulty == difficulty)
+    if teacher_id:
+        query = query.filter(Course.teacher_id == teacher_id)
+    if sort == "newest":
+        query = query.order_by(Course.published_at.desc(), Course.title)
+    elif sort == "popular":
+        enrollment_count = (
+            select(func.count(CourseEnrollment.id))
+            .where(CourseEnrollment.course_id == Course.id)
+            .correlate(Course)
+            .scalar_subquery()
+        )
+        query = query.order_by(enrollment_count.desc(), Course.title)
+    else:
+        sort = "title"
+        query = query.order_by(Course.title)
+    courses = query.all()
+    teachers = (
+        User.query.join(Course, Course.teacher_id == User.id)
+        .filter(Course.status == "published")
+        .distinct()
+        .order_by(User.last_name, User.first_name)
+        .all()
+    )
     return render_template(
         "public/courses.html",
         courses=courses,
         search=search,
+        difficulty=difficulty,
+        teacher_id=teacher_id,
+        teachers=teachers,
+        sort=sort,
         breadcrumbs=[("Главная", "public.index"), ("Каталог курсов", None)],
     )
 

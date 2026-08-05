@@ -8,6 +8,7 @@
     .card-grid, .achievement-grid, .admin-grid { grid-template-columns: repeat(2, 1fr); }
     .task-page, .lesson-layout { grid-template-columns: 1fr; }
     .lesson-sidebar { position: static; max-height: none; }
+    .catalog-filters { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 760px) {
     .page-shell { width: min(100% - 20px, 1180px); }
@@ -15,7 +16,7 @@
     .auth-zone > a:not(:last-of-type) { display: none; }
     .hero { grid-template-columns: 1fr; padding: 34px 0 50px; }
     .hero h1 { font-size: 3rem; }
-    .card-grid, .feature-grid, .dashboard-grid, .achievement-grid, .admin-grid, .settings-form { grid-template-columns: 1fr; }
+    .card-grid, .feature-grid, .dashboard-grid, .achievement-grid, .admin-grid, .settings-form, .catalog-filters { grid-template-columns: 1fr; }
     .dashboard-grid .span-2, .span-2 { grid-column: auto; }
     .course-list article { grid-template-columns: 1fr; }
     .split { grid-template-columns: 1fr; }
