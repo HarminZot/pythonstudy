@@ -1,1 +1,26 @@
-{% extends 'base.html' %}{% block title %}{{ quiz.title }}{% endblock %}{% block content %}<div class="narrow"><h1>{{ quiz.title }}</h1><p>{{ quiz.description }}</p><p>Использовано попыток: {{ attempts_count }} из {{ quiz.max_attempts }}</p><form method="post" class="quiz-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% for question in quiz.questions %}<fieldset><legend>{{ loop.index }}. {{ question.question_text }} <span>{{ question.points }} б.</span></legend>{% if question.code_snippet %}<pre>{{ question.code_snippet }}</pre>{% endif %}{% if question.question_type == 'multiple_choice' %}{% for option in question.options %}<label class="option"><input type="checkbox" name="question_{{ question.id }}" value="{{ option.id }}">{{ option.option_text }}</label>{% endfor %}{% elif question.question_type == 'single_choice' %}{% for option in question.options %}<label class="option"><input type="radio" name="question_{{ question.id }}" value="{{ option.id }}" required>{{ option.option_text }}</label>{% endfor %}{% else %}<input name="question_{{ question.id }}_text" required>{% endif %}</fieldset>{% endfor %}<button class="button" type="submit">Завершить тест</button></form></div>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}{{ quiz.title }}{% endblock %}
+{% block content %}
+<div class="narrow">
+    <h1>{{ quiz.title }}</h1>
+    <p>{{ quiz.description }}</p>
+    <p>Использовано попыток: {{ attempts_count }} из {{ quiz.max_attempts }}</p>
+    <form method="post" class="quiz-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% for question in questions %}
+            <fieldset>
+                <legend>{{ loop.index }}. {{ question.question_text }} <span>{{ question.points }} б.</span></legend>
+                {% if question.code_snippet %}<pre>{{ question.code_snippet }}</pre>{% endif %}
+                {% if question.question_type == 'multiple_choice' %}
+                    {% for option in options_by_question[question.id] %}<label class="option"><input type="checkbox" name="question_{{ question.id }}" value="{{ option.id }}">{{ option.option_text }}</label>{% endfor %}
+                {% elif question.question_type == 'single_choice' %}
+                    {% for option in options_by_question[question.id] %}<label class="option"><input type="radio" name="question_{{ question.id }}" value="{{ option.id }}" required>{{ option.option_text }}</label>{% endfor %}
+                {% else %}
+                    <input name="question_{{ question.id }}_text" required>
+                {% endif %}
+            </fieldset>
+        {% endfor %}
+        <button class="button" type="submit">Завершить тест</button>
+    </form>
+</div>
+{% endblock %}

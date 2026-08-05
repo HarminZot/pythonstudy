@@ -1,3 +1,5 @@
+import random
+
 from flask import abort, flash, redirect, render_template, request, send_file, url_for
 from flask_login import current_user
 
@@ -120,7 +122,23 @@ def quiz(quiz_id):
     _require_enrollment(course_id)
     attempts_count = QuizAttempt.query.filter_by(quiz_id=quiz.id, user_id=current_user.id).count()
     if request.method == "GET":
-        return render_template("student/quiz.html", quiz=quiz, attempts_count=attempts_count, breadcrumbs=[("Главная", "public.index"), (quiz.title, None)])
+        questions = list(quiz.questions)
+        if quiz.randomize_questions:
+            random.shuffle(questions)
+        options_by_question = {}
+        for question in questions:
+            options = list(question.options)
+            if quiz.randomize_options:
+                random.shuffle(options)
+            options_by_question[question.id] = options
+        return render_template(
+            "student/quiz.html",
+            quiz=quiz,
+            questions=questions,
+            options_by_question=options_by_question,
+            attempts_count=attempts_count,
+            breadcrumbs=[("Главная", "public.index"), (quiz.title, None)],
+        )
     if attempts_count >= quiz.max_attempts:
         flash("Количество попыток исчерпано.", "danger")
         return redirect(url_for("student.quiz", quiz_id=quiz.id))
