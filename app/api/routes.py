@@ -5,6 +5,7 @@ from . import bp
 from ..extensions import db
 from ..models import CourseEnrollment, Lesson, LessonProgress, Notification, ProgrammingTask, Submission
 from ..services.achievement_service import evaluate_achievements
+from ..services.access_service import lesson_is_unlocked
 from ..services.code_runner import run_python_code
 from ..services.grading_service import grade_submission
 from ..services.helpers import utcnow
@@ -14,7 +15,11 @@ from ..services.progress_service import calculate_course_progress
 def _student_access(task):
     if not current_user.is_authenticated or not current_user.has_role("student"):
         return False
-    return CourseEnrollment.query.filter_by(user_id=current_user.id, course_id=task.lesson.module.course_id).first() is not None
+    enrollment = CourseEnrollment.query.filter_by(
+        user_id=current_user.id,
+        course_id=task.lesson.module.course_id,
+    ).first()
+    return enrollment is not None and lesson_is_unlocked(current_user.id, task.lesson)
 
 
 @bp.route("/code/run", methods=["POST"])
@@ -67,6 +72,8 @@ def lesson_complete(lesson_id):
     enrollment = CourseEnrollment.query.filter_by(user_id=current_user.id, course_id=lesson.module.course_id).first()
     if not enrollment:
         return jsonify({"error": "Доступ запрещен"}), 403
+    if not lesson.is_published or not lesson_is_unlocked(current_user.id, lesson):
+        return jsonify({"error": "Сначала завершите предыдущие уроки"}), 403
     progress = LessonProgress.query.filter_by(user_id=current_user.id, lesson_id=lesson.id).first()
     if not progress:
         progress = LessonProgress(user_id=current_user.id, lesson_id=lesson.id)

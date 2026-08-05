@@ -1,4 +1,5 @@
-from app.models import CourseEnrollment, LessonProgress
+from app.extensions import db
+from app.models import CourseEnrollment, Lesson, LessonProgress
 from .conftest import login
 
 
@@ -31,3 +32,24 @@ def test_duplicate_enrollment_not_created(client, app):
     assert response.status_code == 200
     with app.app_context():
         assert CourseEnrollment.query.filter_by(user_id=1, course_id=1).count() == 1
+
+
+def test_sequential_course_locks_next_lesson(client, app):
+    with app.app_context():
+        second_lesson = Lesson(
+            module_id=1,
+            title="Урок 2",
+            slug="lesson-2",
+            content="<p>Продолжение</p>",
+            order_index=2,
+            is_published=True,
+            lesson_type="theory",
+        )
+        db.session.add(second_lesson)
+        db.session.commit()
+        second_lesson_id = second_lesson.id
+
+    login(client, "student@test.local", "Student123!")
+    assert client.get(f"/student/lessons/{second_lesson_id}").status_code == 403
+    assert client.post("/api/lessons/1/complete").status_code == 200
+    assert client.get(f"/student/lessons/{second_lesson_id}").status_code == 200

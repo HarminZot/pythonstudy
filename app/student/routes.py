@@ -9,6 +9,7 @@ from ..models import (
     Quiz, QuizAnswer, QuizAttempt, Submission, UserAchievement,
 )
 from ..services.achievement_service import evaluate_achievements
+from ..services.access_service import lesson_is_unlocked
 from ..services.export_service import build_certificate_pdf, build_student_docx, build_student_xlsx
 from ..services.helpers import utcnow
 from ..services.progress_service import calculate_course_progress
@@ -56,6 +57,8 @@ def lesson(lesson_id):
     lesson = Lesson.query.get_or_404(lesson_id)
     course = lesson.module.course
     _require_enrollment(course.id)
+    if not lesson.is_published or not lesson_is_unlocked(current_user.id, lesson):
+        abort(403)
     progress = LessonProgress.query.filter_by(user_id=current_user.id, lesson_id=lesson.id).first()
     if not progress:
         progress = LessonProgress(user_id=current_user.id, lesson_id=lesson.id, status="in_progress", started_at=utcnow())
@@ -79,6 +82,8 @@ def lesson(lesson_id):
 def task(task_id):
     task = ProgrammingTask.query.filter_by(id=task_id, status="published").first_or_404()
     _require_enrollment(task.lesson.module.course_id)
+    if not lesson_is_unlocked(current_user.id, task.lesson):
+        abort(403)
     submissions = Submission.query.filter_by(task_id=task.id, user_id=current_user.id).order_by(Submission.submitted_at.desc()).limit(10).all()
     return render_template("student/task.html", task=task, submissions=submissions, breadcrumbs=[("Главная", "public.index"), (task.lesson.module.course.title, lambda: url_for("public.course_detail", slug=task.lesson.module.course.slug)), (task.title, None)])
 
