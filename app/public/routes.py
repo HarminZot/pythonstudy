@@ -1,5 +1,6 @@
-from flask import abort, flash, redirect, render_template, send_file, url_for
+from flask import abort, flash, redirect, render_template, request, send_file, url_for
 from flask_login import current_user
+from sqlalchemy import or_
 
 from . import bp
 from .forms import FeedbackForm
@@ -17,8 +18,18 @@ def index():
 
 @bp.route("/courses")
 def courses():
-    courses = Course.query.filter_by(status="published").order_by(Course.title).all()
-    return render_template("public/courses.html", courses=courses, breadcrumbs=[("Главная", "public.index"), ("Каталог курсов", None)])
+    search = request.args.get("q", "").strip()
+    query = Course.query.filter_by(status="published")
+    if search:
+        pattern = f"%{search}%"
+        query = query.filter(or_(Course.title.ilike(pattern), Course.short_description.ilike(pattern)))
+    courses = query.order_by(Course.title).all()
+    return render_template(
+        "public/courses.html",
+        courses=courses,
+        search=search,
+        breadcrumbs=[("Главная", "public.index"), ("Каталог курсов", None)],
+    )
 
 
 @bp.route("/courses/<slug>")
