@@ -5,7 +5,8 @@
     <h1>{{ quiz.title }}</h1>
     <p>{{ quiz.description }}</p>
     <p>Использовано попыток: {{ attempts_count }} из {{ quiz.max_attempts }}</p>
-    <form method="post" class="quiz-form">
+    {% if remaining_seconds is not none %}<p class="quiz-timer" id="quiz-timer" data-seconds="{{ remaining_seconds }}">Осталось времени: <strong></strong></p>{% endif %}
+    <form method="post" class="quiz-form" id="quiz-form">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         {% for question in questions %}
             <fieldset>
@@ -24,3 +25,4 @@
     </form>
 </div>
 {% endblock %}
+{% block scripts %}{% if remaining_seconds is not none %}<script>(()=>{const timer=document.getElementById('quiz-timer');const output=timer?.querySelector('strong');const form=document.getElementById('quiz-form');let seconds=Number(timer?.dataset.seconds||0);const render=()=>{const minutes=Math.floor(seconds/60);const rest=String(seconds%60).padStart(2,'0');if(output)output.textContent=`${minutes}:${rest}`;if(seconds<=0){form?.submit();return;}seconds-=1;window.setTimeout(render,1000);};render();})();</script>{% endif %}{% endblock %}

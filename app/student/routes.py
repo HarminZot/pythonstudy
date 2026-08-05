@@ -1,6 +1,7 @@
 import random
+import time
 
-from flask import abort, flash, redirect, render_template, request, send_file, url_for
+from flask import abort, flash, redirect, render_template, request, send_file, session, url_for
 from flask_login import current_user
 
 from . import bp
@@ -121,7 +122,12 @@ def quiz(quiz_id):
     course_id = quiz.course_id or quiz.lesson.module.course_id
     _require_enrollment(course_id)
     attempts_count = QuizAttempt.query.filter_by(quiz_id=quiz.id, user_id=current_user.id).count()
+    timer_key = f"quiz_started_{quiz.id}"
     if request.method == "GET":
+        remaining_seconds = None
+        if quiz.time_limit_minutes:
+            started_at = session.setdefault(timer_key, time.time())
+            remaining_seconds = max(0, int(float(quiz.time_limit_minutes) * 60 - (time.time() - started_at)))
         questions = list(quiz.questions)
         if quiz.randomize_questions:
             random.shuffle(questions)
@@ -137,11 +143,31 @@ def quiz(quiz_id):
             questions=questions,
             options_by_question=options_by_question,
             attempts_count=attempts_count,
+            remaining_seconds=remaining_seconds,
             breadcrumbs=[("Главная", "public.index"), (quiz.title, None)],
         )
     if attempts_count >= quiz.max_attempts:
         flash("Количество попыток исчерпано.", "danger")
         return redirect(url_for("student.quiz", quiz_id=quiz.id))
+
+    if quiz.time_limit_minutes:
+        started_at = session.pop(timer_key, None)
+        expired = started_at is None or time.time() - started_at > float(quiz.time_limit_minutes) * 60
+        if expired:
+            attempt = QuizAttempt(
+                quiz_id=quiz.id,
+                user_id=current_user.id,
+                attempt_number=attempts_count + 1,
+                total_questions=len(quiz.questions),
+                correct_answers=0,
+                score=0,
+                status="expired",
+                finished_at=utcnow(),
+            )
+            db.session.add(attempt)
+            db.session.commit()
+            flash("Время прохождения теста истекло.", "danger")
+            return redirect(url_for("student.quiz_result", attempt_id=attempt.id))
 
     attempt = QuizAttempt(
         quiz_id=quiz.id,
@@ -178,6 +204,7 @@ def quiz(quiz_id):
         ))
     attempt.correct_answers = correct_count
     attempt.score = round(earned * 100 / total_points, 2)
+    session.pop(timer_key, None)
     calculate_course_progress(current_user.id, course_id)
     evaluate_achievements(current_user.id)
     db.session.commit()

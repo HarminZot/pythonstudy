@@ -141,6 +141,7 @@ th { color: #475467; background: #f8f9fc; font-size: .85rem; }
 .test-results article.passed { border-color: var(--success); }
 .test-results article.failed { border-color: var(--danger); }
 .quiz-form fieldset { margin: 0 0 18px; padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+.quiz-timer { position: sticky; top: 80px; z-index: 5; padding: 12px 16px; border: 1px solid #ffd08a; border-radius: 12px; color: #8a4b00; background: #fff7e8; }
 .quiz-form legend { padding: 0 8px; font-weight: 800; }
 .option { display: flex; grid-template-columns: auto 1fr; align-items: center; gap: 9px; padding: 9px; border-radius: 9px; font-weight: 500; }
 .option:hover { background: #f6f7fb; }
