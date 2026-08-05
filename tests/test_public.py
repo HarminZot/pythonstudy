@@ -38,3 +38,20 @@ def test_course_catalog_filters(client):
 
     response = client.get("/courses?difficulty=advanced")
     assert "По заданным условиям курсы не найдены" in response.get_data(as_text=True)
+
+
+def test_course_cover_is_served(client, app, tmp_path):
+    cover = tmp_path / "cover.png"
+    cover.write_bytes(b"course-cover")
+    with app.app_context():
+        course = Course.query.filter_by(slug="test-course").first()
+        course.cover_path = str(cover)
+        db.session.commit()
+        course_id = course.id
+
+    response = client.get(f"/courses/{course_id}/cover")
+    assert response.status_code == 200
+    assert response.data == b"course-cover"
+from app.extensions import db
+from app.models import Course
+

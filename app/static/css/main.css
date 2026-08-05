@@ -60,6 +60,7 @@ button { cursor: pointer; }
 .card-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
 .course-card { overflow: hidden; display: flex; flex-direction: column; min-height: 300px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); }
 .course-cover { min-height: 120px; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg, #4055d6, #7b5be7); font-size: 2.3rem; font-weight: 900; }
+.course-cover img { width: 100%; height: 100%; min-height: 120px; object-fit: cover; }
 .course-content { display: flex; flex-direction: column; flex: 1; padding: 20px; }
 .course-content h3 { margin: 8px 0; font-size: 1.25rem; }
 .course-content p { color: var(--muted); flex: 1; }
@@ -69,6 +70,8 @@ button { cursor: pointer; }
 .feature-grid article, .panel { padding: 22px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); }
 .feature-grid h3, .panel h2 { margin-top: 0; }
 .course-hero { padding: 34px; border-radius: 24px; background: linear-gradient(135deg, #eef1ff, #ffffff); border: 1px solid #d9e0ff; margin-bottom: 34px; }
+.course-hero:has(.course-hero-cover) { display: grid; grid-template-columns: minmax(220px, .7fr) minmax(0, 1.5fr); gap: 28px; align-items: center; }
+.course-hero-cover { width: 100%; max-height: 320px; object-fit: cover; border-radius: 18px; }
 .course-hero h1 { font-size: clamp(2rem, 5vw, 3.5rem); margin: 12px 0; letter-spacing: -.04em; }
 .module-card { padding: 20px; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; margin-bottom: 14px; }
 .module-card ol { margin: 14px 0 0; padding-left: 24px; }

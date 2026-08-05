@@ -26,5 +26,6 @@
     .page-title, .section-heading, .dashboard-header { align-items: flex-start; flex-direction: column; }
     .footer { flex-direction: column; }
     .course-hero { padding: 22px; }
+    .course-hero:has(.course-hero-cover) { grid-template-columns: 1fr; }
     th, td { min-width: 130px; }
 }

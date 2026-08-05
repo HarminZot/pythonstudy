@@ -77,6 +77,14 @@ def course_detail(slug):
     )
 
 
+@bp.route("/courses/<int:course_id>/cover")
+def course_cover(course_id):
+    course = Course.query.filter_by(id=course_id, status="published").first_or_404()
+    if not course.cover_path:
+        abort(404)
+    return send_file(course.cover_path, conditional=True, max_age=3600)
+
+
 @bp.route("/feedback", methods=["GET", "POST"])
 def feedback():
     form = FeedbackForm()
