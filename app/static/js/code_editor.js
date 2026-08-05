@@ -2,8 +2,27 @@
 const editor = document.getElementById('code-editor');
 const output = document.getElementById('code-output');
 const input = document.getElementById('custom-input');
+const codeMirrorEditor = editor && window.CodeMirror
+    ? window.CodeMirror.fromTextArea(editor, {
+        mode: 'python',
+        lineNumbers: true,
+        indentUnit: 4,
+        tabSize: 4,
+        indentWithTabs: false,
+        lineWrapping: false
+    })
+    : null;
 
-editor?.addEventListener('keydown', (event) => {
+const getCode = () => codeMirrorEditor ? codeMirrorEditor.getValue() : (editor?.value || '');
+const setCode = (value) => {
+    if (codeMirrorEditor) {
+        codeMirrorEditor.setValue(value);
+    } else if (editor) {
+        editor.value = value;
+    }
+};
+
+if (!codeMirrorEditor) editor?.addEventListener('keydown', (event) => {
     if (event.key === 'Tab') {
         event.preventDefault();
         const start = editor.selectionStart;
@@ -14,15 +33,15 @@ editor?.addEventListener('keydown', (event) => {
 });
 
 document.getElementById('reset-code')?.addEventListener('click', () => {
-    editor.value = window.STARTER_CODE || '';
+    setCode(window.STARTER_CODE || '');
 });
 
 async function run(endpoint, submit = false) {
     output.textContent = 'Выполнение...';
     const taskId = document.getElementById(submit ? 'submit-code' : 'run-code').dataset.taskId;
     const body = submit
-        ? {code: editor.value}
-        : {code: editor.value, input: input.value, task_id: Number(taskId)};
+        ? {code: getCode()}
+        : {code: getCode(), input: input.value, task_id: Number(taskId)};
     const response = await apiFetch(endpoint, {method: 'POST', body: JSON.stringify(body)});
     const data = await response.json();
     if (!response.ok) {
