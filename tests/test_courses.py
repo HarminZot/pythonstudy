@@ -10,6 +10,15 @@ def test_student_my_courses(client):
     assert "Тестовый курс" in response.get_data(as_text=True)
 
 
+def test_student_dashboard_shows_learning_statistics(client):
+    login(client, "student@test.local", "Student123!")
+    response = client.get("/student/dashboard")
+    page = response.get_data(as_text=True)
+    assert response.status_code == 200
+    assert "завершенных уроков" in page
+    assert "средний балл" in page
+
+
 def test_student_opens_lesson(client):
     login(client, "student@test.local", "Student123!")
     response = client.get("/student/lessons/1")

@@ -16,6 +16,7 @@ from ..services.access_service import lesson_is_unlocked, ordered_published_less
 from ..services.export_service import build_certificate_pdf, build_student_docx, build_student_xlsx
 from ..services.helpers import utcnow
 from ..services.progress_service import calculate_course_progress
+from ..services.statistics_service import student_statistics
 
 
 def _require_enrollment(course_id):
@@ -31,7 +32,8 @@ def dashboard():
     enrollments = CourseEnrollment.query.filter_by(user_id=current_user.id).all()
     recent_submissions = Submission.query.filter_by(user_id=current_user.id).order_by(Submission.submitted_at.desc()).limit(5).all()
     unread = Notification.query.filter_by(user_id=current_user.id, is_read=False).count()
-    return render_template("student/dashboard.html", enrollments=enrollments, recent_submissions=recent_submissions, unread=unread)
+    stats = student_statistics(current_user.id)
+    return render_template("student/dashboard.html", enrollments=enrollments, recent_submissions=recent_submissions, unread=unread, stats=stats)
 
 
 @bp.route("/courses")
