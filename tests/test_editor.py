@@ -15,3 +15,10 @@ def test_task_page_configures_local_draft(client):
     page = client.get("/student/tasks/1").get_data(as_text=True)
     assert "pythonstudy:draft:1:1" in page
     assert 'id="draft-status"' in page
+
+
+def test_task_page_has_fullscreen_control(client):
+    login(client, "student@test.local", "Student123!")
+    page = client.get("/student/tasks/1").get_data(as_text=True)
+    assert 'id="toggle-fullscreen"' in page
+    assert "На весь экран" in page

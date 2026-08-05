@@ -62,6 +62,24 @@ document.getElementById('reset-code')?.addEventListener('click', () => {
     if (draftStatus) draftStatus.textContent = 'Черновик сброшен';
 });
 
+const fullscreenButton = document.getElementById('toggle-fullscreen');
+const editorPanel = document.querySelector('.editor-panel');
+const setFullscreen = (enabled) => {
+    editorPanel?.classList.toggle('fullscreen', enabled);
+    document.body.classList.toggle('editor-fullscreen', enabled);
+    fullscreenButton?.setAttribute('aria-pressed', String(enabled));
+    if (fullscreenButton) fullscreenButton.textContent = enabled ? 'Свернуть' : 'На весь экран';
+    codeMirrorEditor?.refresh();
+};
+
+fullscreenButton?.addEventListener('click', () => {
+    setFullscreen(!editorPanel?.classList.contains('fullscreen'));
+});
+
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && editorPanel?.classList.contains('fullscreen')) setFullscreen(false);
+});
+
 async function run(endpoint, submit = false) {
     output.textContent = 'Выполнение...';
     const taskId = document.getElementById(submit ? 'submit-code' : 'run-code').dataset.taskId;

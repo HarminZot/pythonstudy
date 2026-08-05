@@ -11,3 +11,6 @@
 .terminal-box { margin-top: 15px; overflow: hidden; border: 1px solid #2c354c; border-radius: 12px; background: #090e19; }
 .terminal-title { padding: 8px 12px; color: #9faad0; background: #141b2b; font-size: .82rem; }
 .terminal-box pre { min-height: 90px; margin: 0; border-radius: 0; background: #090e19; color: #9ff0bc; }
+.editor-panel.fullscreen { position: fixed; inset: 12px; z-index: 1000; overflow: auto; border-radius: 16px; }
+.editor-panel.fullscreen .CodeMirror { height: min(62vh, 720px); }
+body.editor-fullscreen { overflow: hidden; }
