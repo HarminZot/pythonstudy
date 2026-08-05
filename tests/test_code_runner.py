@@ -22,3 +22,11 @@ def test_run_timeout(app):
     with app.app_context():
         result = run_python_code("while True:\n    pass", "", timeout=0.2, memory_mb=256)
         assert result.status == "time_limit_exceeded"
+
+
+def test_output_is_limited_without_buffering_in_memory(app):
+    with app.app_context():
+        app.config["CODE_OUTPUT_LIMIT"] = 100
+        result = run_python_code("print('x' * 5000)", memory_mb=256)
+        assert len(result.stdout) <= 100
+        assert "Вывод программы был сокращен" in result.stderr
