@@ -53,3 +53,26 @@ def test_sequential_course_locks_next_lesson(client, app):
     assert client.get(f"/student/lessons/{second_lesson_id}").status_code == 403
     assert client.post("/api/lessons/1/complete").status_code == 200
     assert client.get(f"/student/lessons/{second_lesson_id}").status_code == 200
+
+
+def test_lesson_navigation_unlocks_next_link(client, app):
+    with app.app_context():
+        second_lesson = Lesson(
+            module_id=1,
+            title="Навигационный урок",
+            slug="navigation-lesson",
+            content="<p>Продолжение</p>",
+            order_index=2,
+            is_published=True,
+            lesson_type="theory",
+        )
+        db.session.add(second_lesson)
+        db.session.commit()
+        second_lesson_id = second_lesson.id
+
+    login(client, "student@test.local", "Student123!")
+    page = client.get("/student/lessons/1").get_data(as_text=True)
+    assert "Завершите текущий урок" in page
+    client.post("/api/lessons/1/complete")
+    page = client.get("/student/lessons/1").get_data(as_text=True)
+    assert f"/student/lessons/{second_lesson_id}" in page

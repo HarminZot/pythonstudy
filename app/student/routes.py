@@ -9,7 +9,7 @@ from ..models import (
     Quiz, QuizAnswer, QuizAttempt, Submission, UserAchievement,
 )
 from ..services.achievement_service import evaluate_achievements
-from ..services.access_service import lesson_is_unlocked
+from ..services.access_service import lesson_is_unlocked, ordered_published_lessons
 from ..services.export_service import build_certificate_pdf, build_student_docx, build_student_xlsx
 from ..services.helpers import utcnow
 from ..services.progress_service import calculate_course_progress
@@ -68,11 +68,21 @@ def lesson(lesson_id):
         if progress.status == "not_started":
             progress.status = "in_progress"
     db.session.commit()
+    lessons = ordered_published_lessons(course)
+    lesson_index = next(index for index, item in enumerate(lessons) if item.id == lesson.id)
+    previous_lesson = lessons[lesson_index - 1] if lesson_index > 0 else None
+    next_lesson = lessons[lesson_index + 1] if lesson_index + 1 < len(lessons) else None
+    unlocked_lesson_ids = {
+        item.id for item in lessons if lesson_is_unlocked(current_user.id, item)
+    }
     return render_template(
         "student/lesson.html",
         lesson=lesson,
         course=course,
         progress=progress,
+        previous_lesson=previous_lesson,
+        next_lesson=next_lesson,
+        unlocked_lesson_ids=unlocked_lesson_ids,
         breadcrumbs=[("Главная", "public.index"), ("Мои курсы", "student.my_courses"), (course.title, lambda: url_for("public.course_detail", slug=course.slug)), (lesson.title, None)],
     )
 
