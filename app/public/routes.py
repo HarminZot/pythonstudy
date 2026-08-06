@@ -1,5 +1,5 @@
 from flask import abort, flash, redirect, render_template, request, send_file, url_for
-from flask_login import current_user
+from flask_login import current_user, login_required
 from sqlalchemy import func, or_, select
 
 from . import bp
@@ -110,6 +110,13 @@ def feedback():
         flash("Обращение зарегистрировано.", "success")
         return redirect(url_for("public.feedback"))
     return render_template("public/feedback.html", form=form, breadcrumbs=[("Главная", "public.index"), ("Обратная связь", None)])
+
+
+@bp.route("/feedback/history")
+@login_required
+def feedback_history():
+    items = FeedbackRequest.query.filter_by(user_id=current_user.id).order_by(FeedbackRequest.created_at.desc()).all()
+    return render_template("public/feedback_history.html", requests=items, breadcrumbs=[("Главная", "public.index"), ("Обратная связь", "public.feedback"), ("Мои обращения", None)])
 
 
 @bp.route("/help")

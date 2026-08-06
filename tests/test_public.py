@@ -53,5 +53,20 @@ def test_course_cover_is_served(client, app, tmp_path):
     assert response.status_code == 200
     assert response.data == b"course-cover"
 from app.extensions import db
-from app.models import Course
+from app.models import Course, FeedbackRequest
+from .conftest import login
 
+
+def test_user_sees_only_own_feedback_history(client, app):
+    with app.app_context():
+        db.session.add_all([
+            FeedbackRequest(user_id=1, email="student@test.local", category="technical", subject="Мой вопрос", message="Нужна помощь"),
+            FeedbackRequest(user_id=2, email="teacher@test.local", category="other", subject="Чужой вопрос", message="Другой текст"),
+        ])
+        db.session.commit()
+    login(client, "student@test.local", "Student123!")
+    response = client.get("/feedback/history")
+    body = response.get_data(as_text=True)
+    assert response.status_code == 200
+    assert "Мой вопрос" in body
+    assert "Чужой вопрос" not in body
