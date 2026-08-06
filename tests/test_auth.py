@@ -1,4 +1,5 @@
-from app.models import User
+from app.extensions import db
+from app.models import SystemSetting, User
 from .conftest import login
 
 
@@ -44,3 +45,12 @@ def test_login_rejects_external_next_redirect(client):
     )
     assert response.status_code == 302
     assert response.headers["Location"].endswith("/student/dashboard")
+
+
+def test_registration_can_be_disabled(client, app):
+    with app.app_context():
+        db.session.add(SystemSetting(setting_key="registration_enabled", setting_value="false", value_type="boolean", group_name="registration"))
+        db.session.commit()
+    response = client.get("/auth/register")
+    assert response.status_code == 403
+    assert "приостановлена" in response.get_data(as_text=True)

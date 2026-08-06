@@ -11,6 +11,7 @@ from ..services.code_runner import run_python_code
 from ..services.grading_service import grade_submission
 from ..services.helpers import utcnow
 from ..services.progress_service import calculate_course_progress
+from ..services.settings_service import get_int_setting
 
 
 def _student_access(task):
@@ -36,8 +37,8 @@ def code_run():
     result = run_python_code(
         code,
         input_data=input_data,
-        timeout=float(task.time_limit_seconds) if task else None,
-        memory_mb=task.memory_limit_mb if task else None,
+        timeout=float(task.time_limit_seconds) if task else get_int_setting("code_time_limit", 3, minimum=1, maximum=30),
+        memory_mb=task.memory_limit_mb if task else get_int_setting("code_memory_limit", 128, minimum=32, maximum=1024),
         allowed_imports=task.allowed_imports if task else [],
     )
     log_action(

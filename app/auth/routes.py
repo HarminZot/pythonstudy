@@ -12,6 +12,7 @@ from ..extensions import db
 from ..models import PasswordResetToken, Role, User
 from ..services.audit_service import log_action
 from ..services.helpers import utcnow
+from ..services.settings_service import get_bool_setting
 
 
 def _is_safe_redirect(target):
@@ -48,6 +49,8 @@ def login():
 def register():
     if current_user.is_authenticated:
         return redirect(url_for("public.index"))
+    if not get_bool_setting("registration_enabled", True):
+        return render_template("auth/registration_closed.html", breadcrumbs=[("Главная", "public.index"), ("Регистрация", None)]), 403
     form = RegisterForm()
     if form.validate_on_submit():
         email = form.email.data.lower().strip()

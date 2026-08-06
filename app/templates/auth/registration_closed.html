@@ -1,0 +1,3 @@
+{% extends 'base.html' %}
+{% block title %}Регистрация приостановлена{% endblock %}
+{% block content %}<div class="narrow panel"><h1>Регистрация временно приостановлена</h1><p>Администратор отключил создание новых учетных записей. Если у вас уже есть аккаунт, войдите в систему.</p><a class="button" href="{{ url_for('auth.login') }}">Войти</a></div>{% endblock %}
