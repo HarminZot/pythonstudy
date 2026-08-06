@@ -80,6 +80,11 @@ def seed_demo():
             "Введение и базовый синтаксис",
             "Условия и циклы",
             "Функции и коллекции",
+            "Строки и работа с текстом",
+            "Файлы и обработка ошибок",
+            "Модули и стандартная библиотека",
+            "Объектно-ориентированное программирование",
+            "Итоговый учебный проект",
         ]
         lesson_counter = 0
         for module_index, module_title in enumerate(module_titles, 1):
@@ -138,43 +143,81 @@ def seed_demo():
                         order_index=idx,
                     ))
 
-        quiz = Quiz(
-            course_id=course.id,
-            created_by=users["teacher@pythonstudy.local"].id,
-            title="Итоговый тест по основам Python",
-            description="Проверка базовых понятий языка.",
-            passing_score=70,
-            max_attempts=3,
-            randomize_questions=False,
-            randomize_options=False,
-            show_correct_answers=True,
-            status="published",
-            is_required=True,
-        )
-        db.session.add(quiz)
-        db.session.flush()
-        questions = [
+                if lesson_counter == 1:
+                    bonus_task = ProgrammingTask(
+                        lesson_id=lesson.id,
+                        created_by=users["teacher@pythonstudy.local"].id,
+                        title="Приветствие пользователя",
+                        slug="privetstvie-polzovatelya",
+                        description="Считайте имя и выведите персональное приветствие.",
+                        input_description="Имя пользователя.",
+                        output_description="Строка Привет, имя!",
+                        examples="Ввод: Анна; вывод: Привет, Анна!",
+                        starter_code="name = input()\n",
+                        reference_solution="name = input()\nprint(f'Привет, {name}!')",
+                        difficulty="beginner",
+                        points=10,
+                        time_limit_seconds=2,
+                        memory_limit_mb=256,
+                        status="published",
+                        order_index=2,
+                        is_required=False,
+                    )
+                    db.session.add(bonus_task)
+                    db.session.flush()
+                    for idx, name in enumerate(("Анна", "Иван", "Python"), 1):
+                        db.session.add(TaskTestCase(
+                            task_id=bonus_task.id,
+                            name=f"Приветствие {idx}",
+                            input_data=name + "\n",
+                            expected_output=f"Привет, {name}!",
+                            is_hidden=idx > 1,
+                            weight=1,
+                            order_index=idx,
+                        ))
+
+        question_sets = [
             ("Какой тип хранит целые числа?", ["str", "int", "list"], 1),
-            ("Какой оператор используется для сравнения равенства?", ["=", "==", ":="], 1),
+            ("Какой оператор сравнивает значения?", ["=", "==", ":="], 1),
             ("Какая функция выводит данные?", ["input", "print", "len"], 1),
+            ("Как начинается определение функции?", ["func", "def", "lambda:"], 1),
+            ("Какая коллекция изменяема?", ["tuple", "str", "list"], 2),
         ]
-        for q_index, (text, options, correct_idx) in enumerate(questions, 1):
-            question = QuizQuestion(
-                quiz_id=quiz.id,
-                question_type="single_choice",
-                question_text=text,
-                points=1,
-                order_index=q_index,
+        for quiz_index, module_title in enumerate(module_titles, 1):
+            quiz = Quiz(
+                course_id=course.id,
+                created_by=users["teacher@pythonstudy.local"].id,
+                title=f"Тест {quiz_index}. {module_title}",
+                description="Проверка понятий раздела и подготовка к следующему модулю.",
+                time_limit_minutes=15,
+                passing_score=70,
+                max_attempts=3,
+                randomize_questions=True,
+                randomize_options=True,
+                show_correct_answers=True,
+                status="published",
+                is_required=quiz_index in {3, 8},
             )
-            db.session.add(question)
+            db.session.add(quiz)
             db.session.flush()
-            for o_index, option_text in enumerate(options, 1):
-                db.session.add(QuizOption(
-                    question_id=question.id,
-                    option_text=option_text,
-                    is_correct=o_index - 1 == correct_idx,
-                    order_index=o_index,
-                ))
+            for q_index, (text, options, correct_idx) in enumerate(question_sets, 1):
+                question = QuizQuestion(
+                    quiz_id=quiz.id,
+                    question_type="single_choice",
+                    question_text=f"Раздел {quiz_index}. {text}",
+                    explanation="Верный вариант соответствует синтаксису и типам Python.",
+                    points=1,
+                    order_index=q_index,
+                )
+                db.session.add(question)
+                db.session.flush()
+                for o_index, option_text in enumerate(options, 1):
+                    db.session.add(QuizOption(
+                        question_id=question.id,
+                        option_text=option_text,
+                        is_correct=o_index - 1 == correct_idx,
+                        order_index=o_index,
+                    ))
 
     enrollment = CourseEnrollment.query.filter_by(
         course_id=course.id,
@@ -188,6 +231,10 @@ def seed_demo():
         ("first_task", "Первое решение", "Решено первое программное задание", "completed_tasks", 1),
         ("five_tasks", "Пять решений", "Решено пять заданий", "completed_tasks", 5),
         ("perfect_quiz", "Тест без ошибок", "Тест пройден на 100 процентов", "perfect_quizzes", 1),
+        ("ten_lessons", "Уверенный старт", "Завершено десять уроков", "completed_lessons", 10),
+        ("all_lessons", "Теоретик Python", "Завершены двадцать четыре урока", "completed_lessons", 24),
+        ("ten_tasks", "Практик Python", "Решено десять заданий", "completed_tasks", 10),
+        ("all_tasks", "Мастер практики", "Решено двадцать пять заданий", "completed_tasks", 25),
     ]
     for code, name, description, condition_type, condition_value in achievements:
         if not Achievement.query.filter_by(code=code).first():
