@@ -39,3 +39,13 @@ def save_upload(file_storage, owner_id, category):
     )
     db.session.add(record)
     return record
+
+
+def remove_upload(record):
+    """Помечает загрузку удаленной и удаляет только файл внутри каталога загрузок."""
+    upload_root = Path(current_app.config["UPLOAD_ROOT"]).resolve()
+    stored_path = Path(record.storage_path).resolve()
+    if stored_path.is_relative_to(upload_root) and stored_path.is_file():
+        stored_path.unlink()
+    record.is_deleted = True
+    return record

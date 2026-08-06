@@ -7,7 +7,7 @@ from .forms import FeedbackForm
 from ..extensions import db
 from ..models import Course, CourseEnrollment, FeedbackRequest, LessonMaterial, UploadedFile, User
 from ..services.audit_service import log_action
-from ..services.file_service import save_upload
+from ..services.file_service import remove_upload, save_upload
 
 
 @bp.route("/")
@@ -152,3 +152,18 @@ def download_file(file_id):
         elif current_user.has_role("teacher") and material.lesson.module.course.teacher_id != current_user.id:
             abort(403)
     return send_file(item.storage_path, download_name=item.original_name, as_attachment=True)
+
+
+@bp.post("/files/<int:file_id>/delete")
+@login_required
+def delete_file(file_id):
+    item = UploadedFile.query.filter_by(id=file_id, is_deleted=False).first_or_404()
+    if item.owner_id != current_user.id and not current_user.has_role("admin"):
+        abort(403)
+    if item.category == "avatars" and item.owner and item.owner.avatar_path == item.storage_path:
+        item.owner.avatar_path = None
+    remove_upload(item)
+    log_action("file.delete", "uploaded_file", item.id)
+    db.session.commit()
+    flash("Файл удален.", "success")
+    return redirect(request.referrer or url_for("student.profile"))

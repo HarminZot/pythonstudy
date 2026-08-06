@@ -295,7 +295,11 @@ def profile():
         db.session.commit()
         flash("Профиль обновлен.", "success")
         return redirect(url_for("student.profile"))
-    return render_template("student/profile.html", breadcrumbs=[("Главная", "public.index"), ("Профиль", None)])
+    avatar_file = None
+    if current_user.avatar_path:
+        from ..models import UploadedFile
+        avatar_file = UploadedFile.query.filter_by(storage_path=current_user.avatar_path, is_deleted=False).first()
+    return render_template("student/profile.html", avatar_file=avatar_file, breadcrumbs=[("Главная", "public.index"), ("Профиль", None)])
 
 
 @bp.route("/users/<int:user_id>/avatar")
