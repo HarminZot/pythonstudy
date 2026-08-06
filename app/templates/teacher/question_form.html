@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Редактирование вопроса{% endblock %}
+{% block content %}
+<div class="page-title"><h1>Редактирование вопроса</h1><p>{{ question.quiz.title }}</p></div>
+<form class="panel stack" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Тип<select name="question_type">{% for value, title in [('single_choice','Один вариант'),('multiple_choice','Несколько вариантов'),('short_answer','Короткий ответ')] %}<option value="{{ value }}" {% if question.question_type == value %}selected{% endif %}>{{ title }}</option>{% endfor %}</select></label>
+  <label>Текст вопроса<textarea name="question_text" rows="5" required>{{ question.question_text }}</textarea></label>
+  <label>Варианты, по одному в строке<textarea name="options" rows="7">{% for option in question.options %}{{ option.option_text }}{% if not loop.last %}\n{% endif %}{% endfor %}</textarea></label>
+  <label>Номера правильных вариантов через запятую<input name="correct_options" value="{% for option in question.options if option.is_correct %}{{ option.order_index }}{% if not loop.last %},{% endif %}{% endfor %}"></label>
+  <label>Ответ для текстового вопроса<input name="correct_text_answer" value="{{ question.correct_text_answer or '' }}"></label>
+  <label>Пояснение<textarea name="explanation" rows="4">{{ question.explanation or '' }}</textarea></label>
+  <label>Баллы<input type="number" name="points" value="{{ question.points }}" min="1"></label>
+  <button class="button">Сохранить вопрос</button>
+</form>
+{% endblock %}

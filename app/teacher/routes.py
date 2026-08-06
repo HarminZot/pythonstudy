@@ -347,6 +347,32 @@ def quiz_questions(quiz_id):
     return render_template("teacher/quiz_form.html", quiz=quiz, breadcrumbs=[("Главная", "public.index"), (quiz.title, None)])
 
 
+@bp.route("/questions/<int:question_id>/edit", methods=["GET", "POST"])
+@roles_required("teacher", "admin")
+def quiz_question_edit(question_id):
+    question = QuizQuestion.query.get_or_404(question_id)
+    quiz = question.quiz
+    _own_course(quiz.course_id or quiz.lesson.module.course_id)
+    if request.method == "POST":
+        question.question_type = request.form.get("question_type", "single_choice")
+        question.question_text = request.form.get("question_text", "").strip() or "Вопрос"
+        question.correct_text_answer = request.form.get("correct_text_answer", "").strip() or None
+        question.explanation = request.form.get("explanation", "").strip() or None
+        question.points = max(1, int(request.form.get("points", 1)))
+        option_texts = [value.strip() for value in request.form.get("options", "").splitlines() if value.strip()]
+        correct_numbers = {
+            value.strip() for value in request.form.get("correct_options", "1").split(",") if value.strip()
+        }
+        question.options.clear()
+        for index, option_text in enumerate(option_texts, 1):
+            question.options.append(QuizOption(option_text=option_text, is_correct=str(index) in correct_numbers, order_index=index))
+        log_action("quiz_question.update", "quiz_question", question.id)
+        db.session.commit()
+        flash("Вопрос обновлен.", "success")
+        return redirect(url_for("teacher.quiz_questions", quiz_id=quiz.id))
+    return render_template("teacher/question_form.html", question=question, breadcrumbs=[("Главная", "public.index"), (quiz.title, None), ("Редактирование вопроса", None)])
+
+
 @bp.route("/courses/<int:course_id>/students")
 @roles_required("teacher", "admin")
 def students(course_id):
