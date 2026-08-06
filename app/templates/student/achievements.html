@@ -1,1 +1,20 @@
-{% extends 'base.html' %}{% block title %}Достижения{% endblock %}{% block content %}<div class="page-title"><h1>Достижения</h1><p>Награды за учебную активность.</p></div><div class="achievement-grid">{% for award in awards %}<article><div class="achievement-icon">★</div><h3>{{ award.achievement.name }}</h3><p>{{ award.achievement.description }}</p><small>{{ award.awarded_at.strftime('%d.%m.%Y') }}</small></article>{% else %}<div class="empty">Выполните первый урок или задание, чтобы получить достижение.</div>{% endfor %}</div>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Достижения{% endblock %}
+{% block content %}
+  <div class="page-title">
+    <h1>Достижения</h1>
+    <p>Награды за учебную активность.</p>
+  </div>
+  <div class="achievement-grid">
+    {% for award in awards %}
+      <article>
+        <div class="achievement-icon">★</div>
+        <h3>{{ award.achievement.name }}</h3>
+        <p>{{ award.achievement.description }}</p>
+        <small>{{ award.awarded_at.strftime("%d.%m.%Y") }}</small>
+      </article>
+    {% else %}
+      <div class="empty">Выполните первый урок или задание, чтобы получить достижение.</div>
+    {% endfor %}
+  </div>
+{% endblock %}

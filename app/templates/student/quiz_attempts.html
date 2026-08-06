@@ -1,8 +1,42 @@
 {% extends 'base.html' %}
 {% block title %}История тестов{% endblock %}
 {% block content %}
-<div class="page-title"><div><p class="eyebrow">Учебные тесты</p><h1>История попыток</h1></div></div>
-<div class="table-wrap"><table><thead><tr><th>Тест</th><th>Попытка</th><th>Результат</th><th>Статус</th><th>Дата</th><th></th></tr></thead><tbody>
-{% for attempt in attempts %}<tr><td>{{ attempt.quiz.title }}</td><td>№{{ attempt.attempt_number }}</td><td>{{ attempt.score }}%</td><td>{{ attempt.status }}</td><td>{{ attempt.started_at.strftime('%d.%m.%Y %H:%M') }}</td><td><a href="{{ url_for('student.quiz_result', attempt_id=attempt.id) }}">Подробнее</a></td></tr>{% else %}<tr><td colspan="6">Попыток пока нет.</td></tr>{% endfor %}
-</tbody></table></div>
+  <div class="page-title">
+    <div>
+      <p class="eyebrow">Учебные тесты</p>
+      <h1>История попыток</h1>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Тест</th>
+          <th>Попытка</th>
+          <th>Результат</th>
+          <th>Статус</th>
+          <th>Дата</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for attempt in attempts %}
+          <tr>
+            <td>{{ attempt.quiz.title }}</td>
+            <td>№{{ attempt.attempt_number }}</td>
+            <td>{{ attempt.score }}%</td>
+            <td>{{ attempt.status }}</td>
+            <td>{{ attempt.started_at.strftime("%d.%m.%Y %H:%M") }}</td>
+            <td>
+              <a href="{{ url_for('student.quiz_result', attempt_id=attempt.id) }}">Подробнее</a>
+            </td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="6">Попыток пока нет.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 {% endblock %}

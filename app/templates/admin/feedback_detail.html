@@ -1,1 +1,39 @@
-{% extends 'base.html' %}{% block title %}Обращение №{{ item.id }}{% endblock %}{% block content %}<div class="split"><section class="panel"><span class="badge">{{ item.status }}</span><h1>{{ item.subject }}</h1><p><strong>{{ item.email }}</strong> · {{ item.category }}</p><div class="message">{{ item.message }}</div>{% for message in item.messages %}<div class="message reply"><strong>{{ message.author.full_name }}</strong><p>{{ message.message }}</p><small>{{ message.created_at.strftime('%d.%m.%Y %H:%M') }}</small></div>{% endfor %}</section><aside class="panel"><h2>Ответить</h2><form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label>Сообщение<textarea name="message" rows="8" required></textarea></label><label>Статус<select name="status"><option value="in_progress">Рассматривается</option><option value="resolved">Выполнено</option><option value="rejected">Отклонено</option></select></label><button class="button">Сохранить ответ</button></form></aside></div>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Обращение №{{ item.id }}{% endblock %}
+{% block content %}
+  <div class="split">
+    <section class="panel">
+      <span class="badge">{{ item.status }}</span>
+      <h1>{{ item.subject }}</h1>
+      <p>
+        <strong>{{ item.email }}</strong> · {{ item.category }}
+      </p>
+      <div class="message">{{ item.message }}</div>
+      {% for message in item.messages %}
+        <div class="message reply">
+          <strong>{{ message.author.full_name }}</strong>
+          <p>{{ message.message }}</p>
+          <small>{{ message.created_at.strftime("%d.%m.%Y %H:%M") }}</small>
+        </div>
+      {% endfor %}
+    </section>
+    <aside class="panel">
+      <h2>Ответить</h2>
+      <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label>
+          Сообщение<textarea name="message" rows="8" required></textarea>
+        </label>
+        <label>
+          Статус
+          <select name="status">
+            <option value="in_progress">Рассматривается</option>
+            <option value="resolved">Выполнено</option>
+            <option value="rejected">Отклонено</option>
+          </select>
+        </label>
+        <button class="button">Сохранить ответ</button>
+      </form>
+    </aside>
+  </div>
+{% endblock %}

@@ -1,6 +1,49 @@
-{% extends 'base.html' %}{% block title %}PythonStudy — обучение Python{% endblock %}{% block content %}
-<section class="hero"><div><p class="eyebrow">Интерактивная образовательная система</p><h1>Изучайте Python на практике</h1><p>Читайте уроки, запускайте код в браузере, выполняйте задания и отслеживайте прогресс.</p><div class="actions"><a class="button" href="{{ url_for('public.courses') }}">Перейти к курсам</a>{% if not current_user.is_authenticated %}<a class="button secondary" href="{{ url_for('auth.register') }}">Создать аккаунт</a>{% endif %}</div></div><div class="code-card"><pre><code>name = input("Ваше имя: ")
-print(f"Привет, {name}!")</code></pre><div class="terminal">Привет, студент!</div></div></section>
-<section><div class="section-heading"><h2>Доступные курсы</h2><a href="{{ url_for('public.courses') }}">Все курсы →</a></div><div class="card-grid">{% for course in courses %}{% include 'public/_course_card.html' %}{% else %}<div class="empty">Курсы пока не опубликованы.</div>{% endfor %}</div></section>
-<section class="feature-grid"><article><h3>Интерактивный код</h3><p>Пробный запуск и автоматическая проверка по открытым и скрытым тестам.</p></article><article><h3>Прогресс обучения</h3><p>Уроки, задания, тесты, достижения и индивидуальные отчеты.</p></article><article><h3>Три роли</h3><p>Отдельные возможности студента, преподавателя и администратора.</p></article></section>
+{% extends 'base.html' %}
+{% block title %}PythonStudy — обучение Python{% endblock %}
+{% block content %}
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Интерактивная образовательная система</p>
+      <h1>Изучайте Python на практике</h1>
+      <p>Читайте уроки, запускайте код в браузере, выполняйте задания и отслеживайте прогресс.</p>
+      <div class="actions">
+        <a class="button" href="{{ url_for('public.courses') }}">Перейти к курсам</a>
+        {% if not current_user.is_authenticated %}
+          <a class="button secondary" href="{{ url_for('auth.register') }}">Создать аккаунт</a>
+        {% endif %}
+      </div>
+    </div>
+    <div class="code-card">
+      <pre><code>name = input("Ваше имя: ")
+print(f"Привет, {name}!")</code></pre>
+      <div class="terminal">Привет, студент!</div>
+    </div>
+  </section>
+  <section>
+    <div class="section-heading">
+      <h2>Доступные курсы</h2>
+      <a href="{{ url_for('public.courses') }}">Все курсы →</a>
+    </div>
+    <div class="card-grid">
+      {% for course in courses %}
+        {% include 'public/_course_card.html' %}
+      {% else %}
+        <div class="empty">Курсы пока не опубликованы.</div>
+      {% endfor %}
+    </div>
+  </section>
+  <section class="feature-grid">
+    <article>
+      <h3>Интерактивный код</h3>
+      <p>Пробный запуск и автоматическая проверка по открытым и скрытым тестам.</p>
+    </article>
+    <article>
+      <h3>Прогресс обучения</h3>
+      <p>Уроки, задания, тесты, достижения и индивидуальные отчеты.</p>
+    </article>
+    <article>
+      <h3>Три роли</h3>
+      <p>Отдельные возможности студента, преподавателя и администратора.</p>
+    </article>
+  </section>
 {% endblock %}

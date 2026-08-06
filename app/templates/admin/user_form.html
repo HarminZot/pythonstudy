@@ -1,1 +1,38 @@
-{% extends 'base.html' %}{% block title %}Пользователь{% endblock %}{% block content %}<div class="narrow"><h1>{{ user.full_name }}</h1><form method="post" class="form-card"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label>Фамилия<input name="last_name" value="{{ user.last_name }}"></label><label>Имя<input name="first_name" value="{{ user.first_name }}"></label><label>Роль<select name="role_code">{% for role in roles %}<option value="{{ role.code }}" {% if user.role_id == role.id %}selected{% endif %}>{{ role.name }}</option>{% endfor %}</select></label><label>Статус<select name="status"><option value="active" {% if user.status == 'active' %}selected{% endif %}>Активен</option><option value="blocked" {% if user.status == 'blocked' %}selected{% endif %}>Заблокирован</option></select></label><label>Новый пароль<input type="password" name="password" minlength="8"></label><button class="button">Сохранить</button></form></div>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Пользователь{% endblock %}
+{% block content %}
+  <div class="narrow">
+    <h1>{{ user.full_name }}</h1>
+    <form method="post" class="form-card">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>
+        Фамилия
+        <input name="last_name" value="{{ user.last_name }}">
+      </label>
+      <label>
+        Имя
+        <input name="first_name" value="{{ user.first_name }}">
+      </label>
+      <label>
+        Роль
+        <select name="role_code">
+          {% for role in roles %}
+            <option value="{{ role.code }}" {% if user.role_id == role.id %}selected{% endif %}>{{ role.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Статус
+        <select name="status">
+          <option value="active" {% if user.status == 'active' %}selected{% endif %}>Активен</option>
+          <option value="blocked" {% if user.status == 'blocked' %}selected{% endif %}>Заблокирован</option>
+        </select>
+      </label>
+      <label>
+        Новый пароль
+        <input type="password" name="password" minlength="8">
+      </label>
+      <button class="button">Сохранить</button>
+    </form>
+  </div>
+{% endblock %}

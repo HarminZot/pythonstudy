@@ -1,1 +1,39 @@
-{% extends 'base.html' %}{% block title %}Решения студентов{% endblock %}{% block content %}<div class="page-title"><h1>Решения: {{ course.title }}</h1></div><table><thead><tr><th>Студент</th><th>Задание</th><th>Статус</th><th>Баллы</th><th>Дата</th><th>Проверка</th></tr></thead><tbody>{% for item in submissions %}<tr><td>{{ item.user.full_name }}</td><td>{{ item.task.title }}</td><td>{{ item.status }}</td><td>{{ item.score }}%</td><td>{{ item.submitted_at.strftime('%d.%m.%Y') }}</td><td><a href="{{ url_for('teacher.submission_review', submission_id=item.id) }}">{{ 'Изменить комментарий' if item.reviewed_at else 'Проверить' }}</a></td></tr>{% else %}<tr><td colspan="6">Решений нет.</td></tr>{% endfor %}</tbody></table>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Решения студентов{% endblock %}
+{% block content %}
+  <div class="page-title">
+    <h1>Решения: {{ course.title }}</h1>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Студент</th>
+        <th>Задание</th>
+        <th>Статус</th>
+        <th>Баллы</th>
+        <th>Дата</th>
+        <th>Проверка</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in submissions %}
+        <tr>
+          <td>{{ item.user.full_name }}</td>
+          <td>{{ item.task.title }}</td>
+          <td>{{ item.status }}</td>
+          <td>{{ item.score }}%</td>
+          <td>{{ item.submitted_at.strftime("%d.%m.%Y") }}</td>
+          <td>
+            <a href="{{ url_for('teacher.submission_review', submission_id=item.id) }}">
+              {{ 'Изменить комментарий' if item.reviewed_at else 'Проверить' }}
+            </a>
+          </td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="6">Решений нет.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

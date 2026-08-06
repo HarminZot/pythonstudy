@@ -1,1 +1,10 @@
-{% extends 'base.html' %}{% block title %}Ошибка сервера{% endblock %}{% block content %}<div class="error-page"><strong>500</strong><h1>Ошибка сервера</h1><p>Не удалось обработать запрос. Попробуйте позднее.</p><a class="button" href="{{ url_for('public.index') }}">На главную</a></div>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Ошибка сервера{% endblock %}
+{% block content %}
+  <div class="error-page">
+    <strong>500</strong>
+    <h1>Ошибка сервера</h1>
+    <p>Не удалось обработать запрос. Попробуйте позднее.</p>
+    <a class="button" href="{{ url_for('public.index') }}">На главную</a>
+  </div>
+{% endblock %}

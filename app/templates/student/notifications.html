@@ -1,1 +1,35 @@
-{% extends 'base.html' %}{% block title %}Уведомления{% endblock %}{% block content %}<div class="page-title"><h1>Уведомления</h1><button class="button secondary" id="read-all">Отметить все прочитанными</button></div><div class="notification-list">{% for item in notifications %}<article class="{% if not item.is_read %}unread{% endif %}" data-id="{{ item.id }}"><div><span class="badge">{{ item.notification_type }}</span><h3>{{ item.title }}</h3><p>{{ item.message }}</p><small>{{ item.created_at.strftime('%d.%m.%Y %H:%M') }}</small></div>{% if item.link %}<a href="{{ item.link }}">Открыть</a>{% endif %}</article>{% else %}<div class="empty">Уведомлений нет.</div>{% endfor %}</div>{% endblock %}{% block scripts %}<script>document.getElementById('read-all')?.addEventListener('click',async()=>{await apiFetch('/api/notifications/read-all',{method:'POST'});location.reload();});</script>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Уведомления{% endblock %}
+{% block content %}
+  <div class="page-title">
+    <h1>Уведомления</h1>
+    <button class="button secondary" id="read-all">Отметить все прочитанными</button>
+  </div>
+  <div class="notification-list">
+    {% for item in notifications %}
+      <article class="{% if not item.is_read %}unread{% endif %}" data-id="{{ item.id }}">
+        <div>
+          <span class="badge">{{ item.notification_type }}</span>
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.message }}</p>
+          <small>{{ item.created_at.strftime("%d.%m.%Y %H:%M") }}</small>
+        </div>
+        {% if item.link %}
+          <a href="{{ item.link }}">Открыть</a>
+        {% endif %}
+      </article>
+    {% else %}
+      <div class="empty">Уведомлений нет.</div>
+    {% endfor %}
+  </div>
+{% endblock %}
+{% block scripts %}
+  <script>
+      document.getElementById('read-all')?.addEventListener('click', async () => {
+          await apiFetch('/api/notifications/read-all', {
+              method: 'POST'
+          });
+          location.reload();
+      });
+  </script>
+{% endblock %}

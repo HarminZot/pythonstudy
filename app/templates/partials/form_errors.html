@@ -1,1 +1,12 @@
-{% if form.errors %}<div class="flash danger"><strong>Проверьте форму:</strong><ul>{% for field, errors in form.errors.items() %}{% for error in errors %}<li>{{ error }}</li>{% endfor %}{% endfor %}</ul></div>{% endif %}
+{% if form.errors %}
+  <div class="flash danger">
+    <strong>Проверьте форму:</strong>
+    <ul>
+      {% for field, errors in form.errors.items() %}
+        {% for error in errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}

@@ -1,1 +1,41 @@
-{% extends 'base.html' %}{% block title %}История решений{% endblock %}{% block content %}<div class="page-title"><h1>История решений</h1></div><div class="table-wrap"><table><thead><tr><th>№</th><th>Задание</th><th>Статус</th><th>Баллы</th><th>Тесты</th><th>Дата</th></tr></thead><tbody>{% for item in submissions %}<tr><td><a href="{{ url_for('student.submission_detail', submission_id=item.id) }}">{{ item.id }}</a></td><td>{{ item.task.title }}</td><td><span class="status {{ item.status }}">{{ item.status }}</span></td><td>{{ item.score }}%</td><td>{{ item.passed_tests }}/{{ item.total_tests }}</td><td>{{ item.submitted_at.strftime('%d.%m.%Y %H:%M') }}</td></tr>{% else %}<tr><td colspan="6">Решений пока нет.</td></tr>{% endfor %}</tbody></table></div>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}История решений{% endblock %}
+{% block content %}
+  <div class="page-title">
+    <h1>История решений</h1>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>№</th>
+          <th>Задание</th>
+          <th>Статус</th>
+          <th>Баллы</th>
+          <th>Тесты</th>
+          <th>Дата</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in submissions %}
+          <tr>
+            <td>
+              <a href="{{ url_for('student.submission_detail', submission_id=item.id) }}">{{ item.id }}</a>
+            </td>
+            <td>{{ item.task.title }}</td>
+            <td>
+              <span class="status {{ item.status }}">{{ item.status }}</span>
+            </td>
+            <td>{{ item.score }}%</td>
+            <td>{{ item.passed_tests }}/{{ item.total_tests }}</td>
+            <td>{{ item.submitted_at.strftime("%d.%m.%Y %H:%M") }}</td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="6">Решений пока нет.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

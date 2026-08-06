@@ -1,1 +1,62 @@
-{% extends 'base.html' %}{% block title %}{{ 'Редактирование курса' if course else 'Новый курс' }}{% endblock %}{% block content %}<div class="narrow wide"><h1>{{ 'Редактирование курса' if course else 'Новый курс' }}</h1><form method="post" enctype="multipart/form-data" class="form-card"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label>Название<input name="title" value="{{ course.title if course else '' }}" required></label><label>Краткое описание<textarea name="short_description" rows="3" required>{{ course.short_description if course else '' }}</textarea></label><label>Полное описание<textarea name="full_description" rows="7" required>{{ course.full_description if course else '' }}</textarea></label><div class="form-grid"><label>Уровень<select name="difficulty"><option value="beginner">Начальный</option><option value="intermediate">Средний</option><option value="advanced">Продвинутый</option></select></label><label>Статус<select name="status"><option value="draft">Черновик</option><option value="published">Опубликован</option><option value="archived">Архив</option></select></label><label>Продолжительность, ч.<input type="number" min="1" name="estimated_hours" value="{{ course.estimated_hours if course else 1 }}"></label><label>Проходной балл<input type="number" min="1" max="100" name="passing_score" value="{{ course.passing_score if course else 70 }}"></label></div><label>Обложка курса<input type="file" name="cover" accept=".png,.jpg,.jpeg"></label><label class="checkbox"><input type="checkbox" name="is_sequential" {% if not course or course.is_sequential %}checked{% endif %}> Последовательное прохождение</label><button class="button" type="submit">Сохранить</button></form></div>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}{{ 'Редактирование курса' if course else 'Новый курс' }}{% endblock %}
+{% block content %}
+  <div class="narrow wide">
+    <h1>{{ 'Редактирование курса' if course else 'Новый курс' }}</h1>
+    <form method="post" enctype="multipart/form-data" class="form-card">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>
+        Название
+        <input name="title" value="{{ course.title if course else '' }}" required>
+      </label>
+      <label>
+        Краткое описание<textarea name="short_description" rows="3" required>{{ course.short_description if course else '' }}</textarea>
+      </label>
+      <label>
+        Полное описание<textarea name="full_description" rows="7" required>{{ course.full_description if course else '' }}</textarea>
+      </label>
+      <div class="form-grid">
+        <label>
+          Уровень
+          <select name="difficulty">
+            <option value="beginner">Начальный</option>
+            <option value="intermediate">Средний</option>
+            <option value="advanced">Продвинутый</option>
+          </select>
+        </label>
+        <label>
+          Статус
+          <select name="status">
+            <option value="draft">Черновик</option>
+            <option value="published">Опубликован</option>
+            <option value="archived">Архив</option>
+          </select>
+        </label>
+        <label>
+          Продолжительность, ч.
+          <input type="number"
+                 min="1"
+                 name="estimated_hours"
+                 value="{{ course.estimated_hours if course else 1 }}">
+        </label>
+        <label>
+          Проходной балл
+          <input type="number"
+                 min="1"
+                 max="100"
+                 name="passing_score"
+                 value="{{ course.passing_score if course else 70 }}">
+        </label>
+      </div>
+      <label>
+        Обложка курса
+        <input type="file" name="cover" accept=".png,.jpg,.jpeg">
+      </label>
+      <label class="checkbox">
+      <input type="checkbox"
+             name="is_sequential"
+             {% if not course or course.is_sequential %}checked{% endif %}> Последовательное прохождение</label>
+      <button class="button" type="submit">Сохранить</button>
+    </form>
+  </div>
+{% endblock %}

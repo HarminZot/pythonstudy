@@ -1,6 +1,64 @@
 {% extends 'base.html' %}
 {% block title %}Тестовые случаи{% endblock %}
 {% block content %}
-<div class="page-title"><div><h1>Тестовые случаи: {{ task.title }}</h1><a href="{{ url_for('teacher.task_submissions_export', task_id=task.id) }}">Экспорт решений XLSX</a></div></div>
-<div class="split"><section class="stack">{% for case in task.test_cases %}<article class="panel"><div class="section-heading"><div><h2>{{ case.name }}</h2><span class="badge">{{ 'скрытый' if case.is_hidden else 'открытый' }}</span></div><div class="actions"><a href="{{ url_for('teacher.test_case_edit', case_id=case.id) }}">Изменить</a><form method="post" action="{{ url_for('teacher.test_case_delete', case_id=case.id) }}" onsubmit="return confirm('Удалить тестовый случай?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="button button--danger" type="submit">Удалить</button></form></div></div><h3>Ввод</h3><pre>{{ case.input_data }}</pre><h3>Ожидаемый вывод</h3><pre>{{ case.expected_output }}</pre></article>{% else %}<div class="empty">Тесты не созданы.</div>{% endfor %}</section><aside class="panel"><h2>Добавить тест</h2><form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label>Название<input name="name" required></label><label>Вход<textarea name="input_data" rows="4"></textarea></label><label>Ожидаемый вывод<textarea name="expected_output" rows="4" required></textarea></label><label>Вес<input type="number" name="weight" value="1"></label><label class="checkbox"><input type="checkbox" name="is_hidden" checked> Скрытый тест</label><button class="button">Добавить</button></form></aside></div>
+  <div class="page-title">
+    <div>
+      <h1>Тестовые случаи: {{ task.title }}</h1>
+      <a href="{{ url_for('teacher.task_submissions_export', task_id=task.id) }}">Экспорт решений XLSX</a>
+    </div>
+  </div>
+  <div class="split">
+    <section class="stack">
+      {% for case in task.test_cases %}
+        <article class="panel">
+          <div class="section-heading">
+            <div>
+              <h2>{{ case.name }}</h2>
+              <span class="badge">{{ 'скрытый' if case.is_hidden else 'открытый' }}</span>
+            </div>
+            <div class="actions">
+              <a href="{{ url_for('teacher.test_case_edit', case_id=case.id) }}">Изменить</a>
+              <form method="post"
+                    action="{{ url_for('teacher.test_case_delete', case_id=case.id) }}"
+                    onsubmit="return confirm('Удалить тестовый случай?')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="button button--danger" type="submit">Удалить</button>
+              </form>
+            </div>
+          </div>
+          <h3>Ввод</h3>
+          <pre>{{ case.input_data }}</pre>
+          <h3>Ожидаемый вывод</h3>
+          <pre>{{ case.expected_output }}</pre>
+        </article>
+      {% else %}
+        <div class="empty">Тесты не созданы.</div>
+      {% endfor %}
+    </section>
+    <aside class="panel">
+      <h2>Добавить тест</h2>
+      <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label>
+          Название
+          <input name="name" required>
+        </label>
+        <label>
+          Вход<textarea name="input_data" rows="4"></textarea>
+        </label>
+        <label>
+          Ожидаемый вывод<textarea name="expected_output" rows="4" required></textarea>
+        </label>
+        <label>
+          Вес
+          <input type="number" name="weight" value="1">
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" name="is_hidden" checked>
+          Скрытый тест
+        </label>
+        <button class="button">Добавить</button>
+      </form>
+    </aside>
+  </div>
 {% endblock %}

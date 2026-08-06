@@ -1,28 +1,69 @@
 {% extends 'base.html' %}
 {% block title %}{{ quiz.title }}{% endblock %}
 {% block content %}
-<div class="narrow">
+  <div class="narrow">
     <h1>{{ quiz.title }}</h1>
     <p>{{ quiz.description }}</p>
     <p>Использовано попыток: {{ attempts_count }} из {{ quiz.max_attempts }}</p>
-    {% if remaining_seconds is not none %}<p class="quiz-timer" id="quiz-timer" data-seconds="{{ remaining_seconds }}">Осталось времени: <strong></strong></p>{% endif %}
+    {% if remaining_seconds is not none %}
+      <p class="quiz-timer" id="quiz-timer" data-seconds="{{ remaining_seconds }}">
+        Осталось времени: <strong> </strong>
+      </p>
+    {% endif %}
     <form method="post" class="quiz-form" id="quiz-form">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        {% for question in questions %}
-            <fieldset>
-                <legend>{{ loop.index }}. {{ question.question_text }} <span>{{ question.points }} б.</span></legend>
-                {% if question.code_snippet %}<pre>{{ question.code_snippet }}</pre>{% endif %}
-                {% if question.question_type == 'multiple_choice' %}
-                    {% for option in options_by_question[question.id] %}<label class="option"><input type="checkbox" name="question_{{ question.id }}" value="{{ option.id }}">{{ option.option_text }}</label>{% endfor %}
-                {% elif question.question_type == 'single_choice' %}
-                    {% for option in options_by_question[question.id] %}<label class="option"><input type="radio" name="question_{{ question.id }}" value="{{ option.id }}" required>{{ option.option_text }}</label>{% endfor %}
-                {% else %}
-                    <input name="question_{{ question.id }}_text" required>
-                {% endif %}
-            </fieldset>
-        {% endfor %}
-        <button class="button" type="submit">Завершить тест</button>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      {% for question in questions %}
+        <fieldset>
+          <legend>
+            {{ loop.index }}. {{ question.question_text }} <span>{{ question.points }} б.</span>
+          </legend>
+          {% if question.code_snippet %}
+            <pre>{{ question.code_snippet }}</pre>
+          {% endif %}
+          {% if question.question_type == 'multiple_choice' %}
+            {% for option in options_by_question[question.id] %}
+              <label class="option">
+                <input type="checkbox" name="question_{{ question.id }}" value="{{ option.id }}">
+                {{ option.option_text }}
+              </label>
+            {% endfor %}
+          {% elif question.question_type == 'single_choice' %}
+            {% for option in options_by_question[question.id] %}
+              <label class="option">
+                <input type="radio" name="question_{{ question.id }}" value="{{ option.id }}" required>
+                {{ option.option_text }}
+              </label>
+            {% endfor %}
+          {% else %}
+            <input name="question_{{ question.id }}_text" required>
+          {% endif %}
+        </fieldset>
+      {% endfor %}
+      <button class="button" type="submit">Завершить тест</button>
     </form>
-</div>
+  </div>
 {% endblock %}
-{% block scripts %}{% if remaining_seconds is not none %}<script>(()=>{const timer=document.getElementById('quiz-timer');const output=timer?.querySelector('strong');const form=document.getElementById('quiz-form');let seconds=Number(timer?.dataset.seconds||0);const render=()=>{const minutes=Math.floor(seconds/60);const rest=String(seconds%60).padStart(2,'0');if(output)output.textContent=`${minutes}:${rest}`;if(seconds<=0){form?.submit();return;}seconds-=1;window.setTimeout(render,1000);};render();})();</script>{% endif %}{% endblock %}
+{% block scripts %}
+  {% if remaining_seconds is not none %}
+    <script>
+        (() => {
+            const timer = document.getElementById('quiz-timer');
+            const output = timer?.querySelector('strong');
+            const form = document.getElementById('quiz-form');
+            let seconds = Number(timer?.dataset.seconds || 0);
+            const render = () => {
+                const minutes = Math.floor(seconds / 60);
+                const rest = String(seconds % 60).padStart(2, '0');
+                if (output) output.textContent = `${minutes}:${rest}`;
+                if (seconds <= 0) {
+                    form?.submit();
+                    return;
+                }
+                seconds -= 1;
+                window.setTimeout(render, 1000);
+            };
+            render();
+        })();
+    </script>
+  {% endif %}
+{% endblock %}

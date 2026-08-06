@@ -1,1 +1,25 @@
-{% extends 'base.html' %}{% block title %}Обратная связь{% endblock %}{% block content %}<div class="narrow"><div class="page-title"><div><h1>Обратная связь</h1><p>Сообщите о технической проблеме, ошибке в задании или предложите улучшение.</p></div>{% if current_user.is_authenticated %}<a href="{{ url_for('public.feedback_history') }}">Мои обращения</a>{% endif %}</div>{% include 'partials/form_errors.html' %}<form method="post" enctype="multipart/form-data" class="form-card">{{ form.hidden_tag() }}<label>{{ form.email.label }}{{ form.email() }}</label><label>{{ form.category.label }}{{ form.category() }}</label><label>{{ form.subject.label }}{{ form.subject() }}</label><label>{{ form.message.label }}{{ form.message(rows=7) }}</label><label>{{ form.attachment.label }}{{ form.attachment() }}</label>{{ form.submit(class='button') }}</form></div>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Обратная связь{% endblock %}
+{% block content %}
+  <div class="narrow">
+    <div class="page-title">
+      <div>
+        <h1>Обратная связь</h1>
+        <p>Сообщите о технической проблеме, ошибке в задании или предложите улучшение.</p>
+      </div>
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('public.feedback_history') }}">Мои обращения</a>
+      {% endif %}
+    </div>
+    {% include 'partials/form_errors.html' %}
+    <form method="post" enctype="multipart/form-data" class="form-card">
+      {{ form.hidden_tag() }}
+      <label>{{ form.email.label }}{{ form.email() }}</label>
+      <label>{{ form.category.label }}{{ form.category() }}</label>
+      <label>{{ form.subject.label }}{{ form.subject() }}</label>
+      <label>{{ form.message.label }}{{ form.message(rows=7) }}</label>
+      <label>{{ form.attachment.label }}{{ form.attachment() }}</label>
+      {{ form.submit(class='button') }}
+    </form>
+  </div>
+{% endblock %}

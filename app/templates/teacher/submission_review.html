@@ -1,9 +1,29 @@
 {% extends 'base.html' %}
 {% block title %}Проверка решения{% endblock %}
 {% block content %}
-<div class="page-title"><h1>{{ submission.task.title }}</h1><p>{{ submission.user.full_name }}</p></div>
-<div class="split">
-  <section class="panel"><h2>Код студента</h2><pre><code>{{ submission.code }}</code></pre><h3>Результат</h3><p>{{ submission.status }} · {{ submission.score }}%</p></section>
-  <aside class="panel"><h2>Комментарий преподавателя</h2><form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label>Обратная связь<textarea name="teacher_comment" rows="10" placeholder="Что получилось и что улучшить">{{ submission.teacher_comment or '' }}</textarea></label><button class="button">Сохранить комментарий</button></form></aside>
-</div>
+  <div class="page-title">
+    <h1>{{ submission.task.title }}</h1>
+    <p>{{ submission.user.full_name }}</p>
+  </div>
+  <div class="split">
+    <section class="panel">
+      <h2>Код студента</h2>
+      <pre><code>{{ submission.code }}</code></pre>
+      <h3>Результат</h3>
+      <p>{{ submission.status }} · {{ submission.score }}%</p>
+    </section>
+    <aside class="panel">
+      <h2>Комментарий преподавателя</h2>
+      <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label>
+          Обратная связь
+          <textarea name="teacher_comment"
+                    rows="10"
+                    placeholder="Что получилось и что улучшить">{{ submission.teacher_comment or '' }}</textarea>
+        </label>
+        <button class="button">Сохранить комментарий</button>
+      </form>
+    </aside>
+  </div>
 {% endblock %}

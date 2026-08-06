@@ -1,6 +1,40 @@
 {% extends 'base.html' %}
 {% block title %}Мои обращения{% endblock %}
 {% block content %}
-<div class="page-title"><div><h1>Мои обращения</h1><p>История запросов и ответы команды платформы.</p></div><a class="button" href="{{ url_for('public.feedback') }}">Новое обращение</a></div>
-<section class="stack">{% for item in requests %}<article class="panel"><div class="section-heading"><div><span class="badge">{{ item.status }}</span><h2>№{{ item.id }} · {{ item.subject }}</h2></div><time>{{ item.created_at.strftime('%d.%m.%Y %H:%M') }}</time></div><p>{{ item.message }}</p>{% if item.attachment %}<a href="{{ url_for('public.download_file', file_id=item.attachment.id) }}">Скачать вложение</a>{% endif %}{% for reply in item.messages %}<blockquote><strong>{{ reply.author.full_name }}</strong><br>{{ reply.message }}<footer>{{ reply.created_at.strftime('%d.%m.%Y %H:%M') }}</footer></blockquote>{% endfor %}</article>{% else %}<div class="empty">Вы еще не отправляли обращений.</div>{% endfor %}</section>
+  <div class="page-title">
+    <div>
+      <h1>Мои обращения</h1>
+      <p>История запросов и ответы команды платформы.</p>
+    </div>
+    <a class="button" href="{{ url_for('public.feedback') }}">Новое обращение</a>
+  </div>
+  <section class="stack">
+    {% for item in requests %}
+      <article class="panel">
+        <div class="section-heading">
+          <div>
+            <span class="badge">{{ item.status }}</span>
+            <h2>№{{ item.id }} · {{ item.subject }}</h2>
+          </div>
+          <time>{{ item.created_at.strftime("%d.%m.%Y %H:%M") }}</time>
+        </div>
+        <p>{{ item.message }}</p>
+        {% if item.attachment %}
+          <a href="{{ url_for('public.download_file', file_id=item.attachment.id) }}">Скачать вложение</a>
+        {% endif %}
+        {% for reply in item.messages %}
+          <blockquote>
+            <strong>{{ reply.author.full_name }}</strong>
+            <br>
+            {{ reply.message }}
+            <footer>
+              {{ reply.created_at.strftime("%d.%m.%Y %H:%M") }}
+            </footer>
+          </blockquote>
+        {% endfor %}
+      </article>
+    {% else %}
+      <div class="empty">Вы еще не отправляли обращений.</div>
+    {% endfor %}
+  </section>
 {% endblock %}
