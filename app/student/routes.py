@@ -17,6 +17,7 @@ from ..services.export_service import build_certificate_pdf, build_student_docx,
 from ..services.helpers import utcnow
 from ..services.file_service import save_upload
 from ..services.progress_service import calculate_course_progress
+from ..services.notification_service import notify
 from ..services.statistics_service import student_statistics
 
 
@@ -52,6 +53,7 @@ def enroll(course_id):
     if not enrollment:
         enrollment = CourseEnrollment(course_id=course.id, user_id=current_user.id)
         db.session.add(enrollment)
+        notify(current_user.id, "Вы записаны на курс", f"Курс «{course.title}» добавлен в раздел «Мои курсы».", "course_enrollment", url_for("student.my_courses"))
         db.session.commit()
         flash("Вы записаны на курс.", "success")
     return redirect(url_for("public.course_detail", slug=course.slug))

@@ -5,6 +5,7 @@ from sqlalchemy import func, or_
 from ..extensions import db
 from ..models import CourseEnrollment, CourseModule, Lesson, LessonProgress, ProgrammingTask, Quiz, QuizAttempt, Submission
 from .helpers import utcnow
+from .notification_service import notify
 
 
 def calculate_course_progress(user_id, course_id):
@@ -80,6 +81,7 @@ def calculate_course_progress(user_id, course_id):
     percent = Decimal(str((completed_lessons + completed_tasks + passed_quizzes) * 100 / total)).quantize(Decimal("0.01"))
     enrollment = CourseEnrollment.query.filter_by(user_id=user_id, course_id=course_id).first()
     if enrollment:
+        previous_status = enrollment.status
         final_score = Decimal(str(sum(best_quiz_scores) / len(best_quiz_scores))).quantize(Decimal("0.01")) if best_quiz_scores else None
         enrollment.progress_percent = percent
         enrollment.final_score = final_score
@@ -87,6 +89,14 @@ def calculate_course_progress(user_id, course_id):
         enrollment.status = "completed" if percent >= 100 and meets_course_score else "in_progress"
         if enrollment.status == "completed" and not enrollment.completed_at:
             enrollment.completed_at = utcnow()
+        if enrollment.status == "completed" and previous_status != "completed":
+            notify(
+                user_id,
+                "Курс завершен",
+                f"Поздравляем! Вы завершили курс «{enrollment.course.title}».",
+                "course_completed",
+                f"/student/courses/{course_id}/certificate",
+            )
     return percent
 
 

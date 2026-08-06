@@ -1,5 +1,5 @@
 from app.extensions import db
-from app.models import CourseEnrollment, LessonProgress, Quiz, QuizAttempt, Submission
+from app.models import CourseEnrollment, LessonProgress, Notification, Quiz, QuizAttempt, Submission
 from app.services.progress_service import calculate_course_progress
 
 
@@ -38,3 +38,18 @@ def test_required_quiz_is_included_in_course_progress(app):
         assert float(calculate_course_progress(1, 1)) == 100
         assert enrollment.status == "completed"
         assert float(enrollment.final_score) == 80
+
+
+def test_course_completion_notification_is_created_once(app):
+    with app.app_context():
+        db.session.add_all([
+            LessonProgress(user_id=1, lesson_id=1, status="completed"),
+            Submission(task_id=1, user_id=1, code="print(4)", status="accepted", score=100),
+        ])
+        db.session.commit()
+        calculate_course_progress(1, 1)
+        db.session.commit()
+        assert Notification.query.filter_by(user_id=1, notification_type="course_completed").count() == 1
+        calculate_course_progress(1, 1)
+        db.session.commit()
+        assert Notification.query.filter_by(user_id=1, notification_type="course_completed").count() == 1
