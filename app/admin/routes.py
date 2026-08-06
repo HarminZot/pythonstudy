@@ -91,6 +91,24 @@ def courses():
     return render_template("admin/courses.html", courses=Course.query.order_by(Course.created_at.desc()).all(), breadcrumbs=[("Главная", "public.index"), ("Все курсы", None)])
 
 
+@bp.post("/courses/<int:course_id>/status")
+@roles_required("admin")
+def course_status(course_id):
+    course = Course.query.get_or_404(course_id)
+    status = request.form.get("status", "")
+    if status not in {"draft", "published", "archived"}:
+        flash("Неизвестный статус курса.", "danger")
+    else:
+        previous_status = course.status
+        course.status = status
+        if status == "published" and not course.published_at:
+            course.published_at = utcnow()
+        log_action("admin.course_status", "course", course.id, {"from": previous_status, "to": status})
+        db.session.commit()
+        flash("Статус курса обновлен.", "success")
+    return redirect(url_for("admin.courses"))
+
+
 @bp.route("/feedback")
 @roles_required("admin")
 def feedback():

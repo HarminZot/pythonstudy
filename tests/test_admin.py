@@ -1,4 +1,5 @@
-from app.models import SystemSetting, User
+from app.extensions import db
+from app.models import Course, SystemSetting, User
 from .conftest import login
 
 
@@ -42,3 +43,11 @@ def test_admin_creates_user(client, app):
         user = User.query.filter_by(email="new.student@test.local").one()
         assert user.has_role("student")
         assert user.check_password("Temporary123!")
+
+
+def test_admin_changes_course_status(client, app):
+    login(client, "admin@test.local", "Admin123!")
+    response = client.post("/admin/courses/1/status", data={"status": "archived"}, follow_redirects=True)
+    assert response.status_code == 200
+    with app.app_context():
+        assert db.session.get(Course, 1).status == "archived"
