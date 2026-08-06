@@ -25,7 +25,7 @@ python3.12 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
-flask --app run.py init-db
+flask --app run.py db upgrade
 flask --app run.py seed-demo
 flask --app run.py run
 ```
@@ -42,6 +42,8 @@ flask --app run.py run
 
 Пароли следует заменить перед публикацией.
 
+Демонстрационный курс содержит 8 модулей, 24 урока, 25 программных заданий, 75 тестовых случаев и 8 тестов знаний с 40 вопросами.
+
 ## PostgreSQL
 
 Укажите переменную:
@@ -54,6 +56,7 @@ DATABASE_URL=postgresql+psycopg://user:password@host:5432/database
 
 ```bash
 pytest -q
+python scripts/verify_project.py
 ```
 
 ## Подсчет логических строк

@@ -37,7 +37,7 @@ def collect_endpoints():
             has_route = any(
                 isinstance(decorator, ast.Call)
                 and isinstance(decorator.func, ast.Attribute)
-                and decorator.func.attr == "route"
+                and decorator.func.attr in {"route", "get", "post", "put", "patch", "delete"}
                 for decorator in node.decorator_list
             )
             if has_route:
