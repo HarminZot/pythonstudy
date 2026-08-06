@@ -36,7 +36,7 @@ class User(UserMixin, TimestampMixin, db.Model):
     taught_courses = db.relationship("Course", back_populates="teacher", foreign_keys="Course.teacher_id")
     enrollments = db.relationship("CourseEnrollment", back_populates="user", cascade="all, delete-orphan")
     lesson_progress = db.relationship("LessonProgress", back_populates="user", cascade="all, delete-orphan")
-    submissions = db.relationship("Submission", back_populates="user", cascade="all, delete-orphan")
+    submissions = db.relationship("Submission", back_populates="user", cascade="all, delete-orphan", foreign_keys="Submission.user_id")
     quiz_attempts = db.relationship("QuizAttempt", back_populates="user", cascade="all, delete-orphan")
     notifications = db.relationship("Notification", back_populates="user", cascade="all, delete-orphan")
 

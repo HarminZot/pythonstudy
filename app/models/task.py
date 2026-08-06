@@ -64,11 +64,15 @@ class Submission(db.Model):
     memory_used_kb = db.Column(db.Integer)
     stdout = db.Column(db.Text)
     stderr = db.Column(db.Text)
+    teacher_comment = db.Column(db.Text)
+    reviewed_by = db.Column(db.BigInteger().with_variant(db.Integer, "sqlite"), db.ForeignKey("users.id"))
+    reviewed_at = db.Column(db.DateTime(timezone=True))
     submitted_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
     checked_at = db.Column(db.DateTime(timezone=True))
 
     task = db.relationship("ProgrammingTask", back_populates="submissions")
-    user = db.relationship("User", back_populates="submissions")
+    user = db.relationship("User", back_populates="submissions", foreign_keys=[user_id])
+    reviewer = db.relationship("User", foreign_keys=[reviewed_by])
     test_results = db.relationship("SubmissionTestResult", back_populates="submission", cascade="all, delete-orphan")
 
 

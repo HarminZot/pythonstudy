@@ -12,6 +12,7 @@ from ..models import Course, CourseModule, Lesson, LessonMaterial, ProgrammingTa
 from ..services.audit_service import log_action
 from ..services.helpers import utcnow
 from ..services.file_service import save_upload
+from ..services.notification_service import notify
 from ..services.statistics_service import teacher_statistics
 
 
@@ -299,6 +300,34 @@ def submissions(course_id):
     task_ids = [task.id for lesson in [lesson for module in course.modules for lesson in module.lessons] for task in lesson.tasks]
     items = Submission.query.filter(Submission.task_id.in_(task_ids)).order_by(Submission.submitted_at.desc()).all() if task_ids else []
     return render_template("teacher/submissions.html", course=course, submissions=items, breadcrumbs=[("Главная", "public.index"), (course.title, None), ("Решения", None)])
+
+
+@bp.route("/submissions/<int:submission_id>/review", methods=["GET", "POST"])
+@roles_required("teacher", "admin")
+def submission_review(submission_id):
+    submission = Submission.query.get_or_404(submission_id)
+    course = _own_course(submission.task.lesson.module.course_id)
+    if request.method == "POST":
+        submission.teacher_comment = request.form.get("teacher_comment", "").strip() or None
+        submission.reviewed_by = current_user.id
+        submission.reviewed_at = utcnow()
+        notify(
+            submission.user_id,
+            "Преподаватель проверил решение",
+            f"Получен комментарий к заданию «{submission.task.title}».",
+            "submission_review",
+            url_for("student.submissions"),
+        )
+        log_action("submission.review", "submission", submission.id)
+        db.session.commit()
+        flash("Комментарий сохранен.", "success")
+        return redirect(url_for("teacher.submissions", course_id=course.id))
+    return render_template(
+        "teacher/submission_review.html",
+        submission=submission,
+        course=course,
+        breadcrumbs=[("Главная", "public.index"), (course.title, None), ("Проверка решения", None)],
+    )
 
 
 @bp.route("/courses/<int:course_id>/export")
