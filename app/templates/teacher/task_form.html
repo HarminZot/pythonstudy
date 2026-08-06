@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Редактирование задания{% endblock %}
+{% block content %}
+<div class="page-title"><h1>Редактирование задания</h1><p>{{ task.lesson.title }}</p></div>
+<form class="panel stack" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Название<input name="title" value="{{ task.title }}" required></label>
+  <label>Условие<textarea name="description" rows="7" required>{{ task.description }}</textarea></label>
+  <div class="form-grid"><label>Входные данные<textarea name="input_description">{{ task.input_description or '' }}</textarea></label><label>Выходные данные<textarea name="output_description">{{ task.output_description or '' }}</textarea></label></div>
+  <label>Примеры<textarea name="examples" rows="4">{{ task.examples or '' }}</textarea></label>
+  <div class="form-grid"><label>Начальный код<textarea name="starter_code" rows="8">{{ task.starter_code or '' }}</textarea></label><label>Эталонное решение<textarea name="reference_solution" rows="8">{{ task.reference_solution or '' }}</textarea></label></div>
+  <div class="form-grid"><label>Сложность<select name="difficulty">{% for value, title in [('beginner','Начальная'),('intermediate','Средняя'),('advanced','Высокая')] %}<option value="{{ value }}" {% if task.difficulty == value %}selected{% endif %}>{{ title }}</option>{% endfor %}</select></label><label>Баллы<input type="number" name="points" value="{{ task.points }}" min="1"></label><label>Лимит времени<input type="number" step="0.1" name="time_limit_seconds" value="{{ task.time_limit_seconds }}" min="0.1"></label><label>Память, МБ<input type="number" name="memory_limit_mb" value="{{ task.memory_limit_mb }}" min="16"></label><label>Статус<select name="status"><option value="draft" {% if task.status == 'draft' %}selected{% endif %}>Черновик</option><option value="published" {% if task.status == 'published' %}selected{% endif %}>Опубликовано</option></select></label></div>
+  <button class="button">Сохранить изменения</button>
+</form>
+{% endblock %}

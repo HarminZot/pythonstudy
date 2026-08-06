@@ -217,6 +217,35 @@ def lesson_tasks(lesson_id):
     return render_template("teacher/tasks.html", lesson=lesson, breadcrumbs=[("Главная", "public.index"), (lesson.title, None), ("Задания", None)])
 
 
+@bp.route("/tasks/<int:task_id>/edit", methods=["GET", "POST"])
+@roles_required("teacher", "admin")
+def task_edit(task_id):
+    task = ProgrammingTask.query.get_or_404(task_id)
+    _own_course(task.lesson.module.course_id)
+    if request.method == "POST":
+        title = request.form.get("title", "").strip()
+        if not title:
+            flash("Название обязательно.", "danger")
+        else:
+            task.title = title
+            task.description = request.form.get("description", "").strip()
+            task.input_description = request.form.get("input_description", "").strip() or None
+            task.output_description = request.form.get("output_description", "").strip() or None
+            task.examples = request.form.get("examples", "").strip() or None
+            task.starter_code = request.form.get("starter_code", "")
+            task.reference_solution = request.form.get("reference_solution", "") or None
+            task.difficulty = request.form.get("difficulty", "beginner")
+            task.points = max(1, int(request.form.get("points", 10)))
+            task.time_limit_seconds = max(0.1, float(request.form.get("time_limit_seconds", 2)))
+            task.memory_limit_mb = max(16, int(request.form.get("memory_limit_mb", 256)))
+            task.status = request.form.get("status", "draft")
+            log_action("task.update", "programming_task", task.id)
+            db.session.commit()
+            flash("Задание обновлено.", "success")
+            return redirect(url_for("teacher.lesson_tasks", lesson_id=task.lesson_id))
+    return render_template("teacher/task_form.html", task=task, breadcrumbs=[("Главная", "public.index"), (task.title, None)])
+
+
 @bp.route("/tasks/<int:task_id>/test-cases", methods=["GET", "POST"])
 @roles_required("teacher", "admin")
 def test_cases(task_id):
