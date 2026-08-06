@@ -68,3 +68,11 @@ def test_teacher_can_edit_quiz_question(client, app):
         saved = db.session.get(QuizQuestion, question_id)
         assert saved.question_text == "Выберите четные числа"
         assert [option.option_text for option in saved.options if option.is_correct] == ["2", "4"]
+
+
+def test_teacher_exports_task_submissions(client, app):
+    login(client, "teacher@test.local", "Teacher123!")
+    response = client.get("/teacher/tasks/1/submissions/export")
+    assert response.status_code == 200
+    assert response.headers["Content-Disposition"].endswith("task_1_submissions.xlsx")
+    assert response.data.startswith(b"PK")

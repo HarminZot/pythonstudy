@@ -51,3 +51,11 @@ def test_admin_changes_course_status(client, app):
     assert response.status_code == 200
     with app.app_context():
         assert db.session.get(Course, 1).status == "archived"
+
+
+def test_admin_exports_users_workbook(client):
+    login(client, "admin@test.local", "Admin123!")
+    response = client.get("/admin/users/export")
+    assert response.status_code == 200
+    assert response.headers["Content-Disposition"].endswith("pythonstudy_users.xlsx")
+    assert response.data.startswith(b"PK")

@@ -14,6 +14,7 @@ from ..services.helpers import utcnow
 from ..services.file_service import save_upload
 from ..services.notification_service import notify
 from ..services.statistics_service import teacher_statistics
+from ..services.export_service import build_task_submissions_xlsx
 
 
 def slugify(value):
@@ -265,6 +266,14 @@ def test_cases(task_id):
         flash("Тестовый случай добавлен.", "success")
         return redirect(url_for("teacher.test_cases", task_id=task.id))
     return render_template("teacher/test_cases.html", task=task, breadcrumbs=[("Главная", "public.index"), (task.title, None), ("Тестовые случаи", None)])
+
+
+@bp.route("/tasks/<int:task_id>/submissions/export")
+@roles_required("teacher", "admin")
+def task_submissions_export(task_id):
+    task = ProgrammingTask.query.get_or_404(task_id)
+    _own_course(task.lesson.module.course_id)
+    return send_file(build_task_submissions_xlsx(task), download_name=f"task_{task.id}_submissions.xlsx", as_attachment=True)
 
 
 @bp.route("/test-cases/<int:case_id>/edit", methods=["GET", "POST"])

@@ -7,7 +7,42 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 
-from ..models import CourseEnrollment, LessonProgress, Submission
+from ..models import Course, Submission, User
+
+
+def _workbook_stream(workbook):
+    stream = BytesIO()
+    workbook.save(stream)
+    stream.seek(0)
+    return stream
+
+
+def build_users_xlsx():
+    workbook = Workbook()
+    users_sheet = workbook.active
+    users_sheet.title = "Пользователи"
+    users_sheet.append(["ID", "ФИО", "Email", "Роль", "Статус", "Дата регистрации"])
+    for user in User.query.order_by(User.id).all():
+        users_sheet.append([user.id, user.full_name, user.email, user.role.name, user.status, user.created_at.isoformat()])
+    courses_sheet = workbook.create_sheet("Курсы")
+    courses_sheet.append(["ID", "Название", "Преподаватель", "Статус", "Студентов"])
+    for course in Course.query.order_by(Course.id).all():
+        courses_sheet.append([course.id, course.title, course.teacher.full_name, course.status, len(course.enrollments)])
+    return _workbook_stream(workbook)
+
+
+def build_task_submissions_xlsx(task):
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.title = "Решения"
+    sheet.append(["Студент", "Email", "Статус", "Баллы", "Проверено", "Комментарий", "Дата"])
+    for submission in sorted(task.submissions, key=lambda item: item.submitted_at, reverse=True):
+        sheet.append([
+            submission.user.full_name, submission.user.email, submission.status, float(submission.score),
+            submission.reviewer.full_name if submission.reviewer else "", submission.teacher_comment or "",
+            submission.submitted_at.isoformat(),
+        ])
+    return _workbook_stream(workbook)
 
 
 def build_student_xlsx(user):
@@ -24,10 +59,7 @@ def build_student_xlsx(user):
     ws2.append(["Задание", "Статус", "Баллы", "Дата"])
     for submission in Submission.query.filter_by(user_id=user.id).order_by(Submission.submitted_at.desc()).all():
         ws2.append([submission.task.title, submission.status, float(submission.score), submission.submitted_at.isoformat()])
-    stream = BytesIO()
-    wb.save(stream)
-    stream.seek(0)
-    return stream
+    return _workbook_stream(wb)
 
 
 def build_student_docx(user):
@@ -87,4 +119,3 @@ def build_certificate_pdf(user, course):
     page.save()
     stream.seek(0)
     return stream
-

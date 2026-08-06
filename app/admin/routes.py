@@ -1,4 +1,4 @@
-from flask import flash, redirect, render_template, request, url_for
+from flask import flash, redirect, render_template, request, send_file, url_for
 from flask_login import current_user
 
 from . import bp
@@ -9,6 +9,7 @@ from ..services.audit_service import log_action
 from ..services.helpers import utcnow
 from ..services.notification_service import notify
 from ..services.statistics_service import admin_statistics
+from ..services.export_service import build_users_xlsx
 
 
 @bp.route("/")
@@ -25,6 +26,12 @@ def users():
     if query:
         users_query = users_query.filter((User.email.ilike(f"%{query}%")) | (User.last_name.ilike(f"%{query}%")))
     return render_template("admin/users.html", users=users_query.order_by(User.created_at.desc()).all(), q=query, breadcrumbs=[("Главная", "public.index"), ("Пользователи", None)])
+
+
+@bp.route("/users/export")
+@roles_required("admin")
+def users_export():
+    return send_file(build_users_xlsx(), download_name="pythonstudy_users.xlsx", as_attachment=True)
 
 
 @bp.route("/users/create", methods=["GET", "POST"])
