@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Редактирование тестового случая{% endblock %}
+{% block content %}
+<div class="page-title"><h1>Редактирование тестового случая</h1><p>{{ test_case.task.title }}</p></div>
+<form class="panel stack" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Название<input name="name" value="{{ test_case.name }}" required></label>
+  <div class="form-grid"><label>Входные данные<textarea name="input_data" rows="8">{{ test_case.input_data or '' }}</textarea></label><label>Ожидаемый вывод<textarea name="expected_output" rows="8" required>{{ test_case.expected_output }}</textarea></label></div>
+  <div class="form-grid"><label>Вес<input type="number" name="weight" value="{{ test_case.weight }}" min="1"></label><label>Отдельный лимит времени<input type="number" step="0.1" name="timeout_seconds" value="{{ test_case.timeout_seconds or '' }}" min="0.1"></label></div>
+  <label class="checkbox"><input type="checkbox" name="is_hidden" {% if test_case.is_hidden %}checked{% endif %}> Скрывать данные от студента</label>
+  <button class="button">Сохранить</button>
+</form>
+{% endblock %}

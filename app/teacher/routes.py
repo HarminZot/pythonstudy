@@ -267,6 +267,39 @@ def test_cases(task_id):
     return render_template("teacher/test_cases.html", task=task, breadcrumbs=[("Главная", "public.index"), (task.title, None), ("Тестовые случаи", None)])
 
 
+@bp.route("/test-cases/<int:case_id>/edit", methods=["GET", "POST"])
+@roles_required("teacher", "admin")
+def test_case_edit(case_id):
+    test_case = TaskTestCase.query.get_or_404(case_id)
+    _own_course(test_case.task.lesson.module.course_id)
+    if request.method == "POST":
+        test_case.name = request.form.get("name", "").strip() or "Тестовый случай"
+        test_case.input_data = request.form.get("input_data", "")
+        test_case.expected_output = request.form.get("expected_output", "")
+        test_case.weight = max(1, int(request.form.get("weight", 1)))
+        test_case.is_hidden = bool(request.form.get("is_hidden"))
+        timeout = request.form.get("timeout_seconds", "").strip()
+        test_case.timeout_seconds = max(0.1, float(timeout)) if timeout else None
+        log_action("test_case.update", "task_test_case", test_case.id)
+        db.session.commit()
+        flash("Тестовый случай обновлен.", "success")
+        return redirect(url_for("teacher.test_cases", task_id=test_case.task_id))
+    return render_template("teacher/test_case_form.html", test_case=test_case, breadcrumbs=[("Главная", "public.index"), (test_case.name, None)])
+
+
+@bp.post("/test-cases/<int:case_id>/delete")
+@roles_required("teacher", "admin")
+def test_case_delete(case_id):
+    test_case = TaskTestCase.query.get_or_404(case_id)
+    _own_course(test_case.task.lesson.module.course_id)
+    task_id = test_case.task_id
+    log_action("test_case.delete", "task_test_case", test_case.id)
+    db.session.delete(test_case)
+    db.session.commit()
+    flash("Тестовый случай удален.", "success")
+    return redirect(url_for("teacher.test_cases", task_id=task_id))
+
+
 @bp.route("/courses/<int:course_id>/quizzes", methods=["GET", "POST"])
 @roles_required("teacher", "admin")
 def course_quizzes(course_id):
