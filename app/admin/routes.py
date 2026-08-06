@@ -27,6 +27,42 @@ def users():
     return render_template("admin/users.html", users=users_query.order_by(User.created_at.desc()).all(), q=query, breadcrumbs=[("Главная", "public.index"), ("Пользователи", None)])
 
 
+@bp.route("/users/create", methods=["GET", "POST"])
+@roles_required("admin")
+def user_create():
+    roles = Role.query.order_by(Role.name).all()
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+        role = Role.query.filter_by(code=request.form.get("role_code", "student")).first()
+        if not email or "@" not in email:
+            flash("Укажите корректный email.", "danger")
+        elif User.query.filter_by(email=email).first():
+            flash("Пользователь с таким email уже существует.", "danger")
+        elif len(password) < 8:
+            flash("Пароль должен содержать не менее 8 символов.", "danger")
+        elif not role:
+            flash("Выберите существующую роль.", "danger")
+        else:
+            user = User(
+                role=role,
+                email=email,
+                last_name=request.form.get("last_name", "").strip() or "Пользователь",
+                first_name=request.form.get("first_name", "").strip() or "Новый",
+                middle_name=request.form.get("middle_name", "").strip() or None,
+                status=request.form.get("status", "active"),
+                is_email_verified=True,
+            )
+            user.set_password(password)
+            db.session.add(user)
+            db.session.flush()
+            log_action("admin.user_create", "user", user.id)
+            db.session.commit()
+            flash("Пользователь создан.", "success")
+            return redirect(url_for("admin.users"))
+    return render_template("admin/user_create.html", roles=roles, breadcrumbs=[("Главная", "public.index"), ("Пользователи", "admin.users"), ("Новый пользователь", None)])
+
+
 @bp.route("/users/<int:user_id>", methods=["GET", "POST"])
 @roles_required("admin")
 def user_edit(user_id):

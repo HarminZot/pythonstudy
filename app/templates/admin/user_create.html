@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Новый пользователь{% endblock %}
+{% block content %}
+<div class="narrow"><h1>Новый пользователь</h1><form method="post" class="form-card"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Email<input type="email" name="email" value="{{ request.form.get('email', '') }}" required></label>
+  <div class="form-grid"><label>Фамилия<input name="last_name" value="{{ request.form.get('last_name', '') }}" required></label><label>Имя<input name="first_name" value="{{ request.form.get('first_name', '') }}" required></label></div>
+  <label>Отчество<input name="middle_name" value="{{ request.form.get('middle_name', '') }}"></label>
+  <label>Роль<select name="role_code">{% for role in roles %}<option value="{{ role.code }}" {% if request.form.get('role_code', 'student') == role.code %}selected{% endif %}>{{ role.name }}</option>{% endfor %}</select></label>
+  <label>Статус<select name="status"><option value="active">Активен</option><option value="blocked">Заблокирован</option></select></label>
+  <label>Временный пароль<input type="password" name="password" minlength="8" required></label>
+  <button class="button">Создать пользователя</button>
+</form></div>
+{% endblock %}

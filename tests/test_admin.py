@@ -28,3 +28,17 @@ def test_admin_initializes_settings(client, app):
     assert response.status_code == 200
     with app.app_context():
         assert SystemSetting.query.count() >= 5
+
+
+def test_admin_creates_user(client, app):
+    login(client, "admin@test.local", "Admin123!")
+    response = client.post(
+        "/admin/users/create",
+        data={"email": "new.student@test.local", "first_name": "Новый", "last_name": "Студент", "role_code": "student", "status": "active", "password": "Temporary123!"},
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+    with app.app_context():
+        user = User.query.filter_by(email="new.student@test.local").one()
+        assert user.has_role("student")
+        assert user.check_password("Temporary123!")
