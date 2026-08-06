@@ -6,7 +6,7 @@
     {% include 'partials/form_errors.html' %}
     <form method="post">
       {{ form.hidden_tag() }}
-      <label>{{ form.email.label }}{{ form.email(autocomplete='email') }}</label>
+      <label>{{ form.email.label }}{{ form.email(autocomplete='username') }}</label>
       <label>{{ form.password.label }}{{ form.password(autocomplete='current-password') }}</label>
       <label class="checkbox">{{ form.remember() }} {{ form.remember.label.text }}</label>
       {{ form.submit(class='button full') }}

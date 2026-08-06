@@ -9,12 +9,18 @@ from .models import (
     Course,
     CourseEnrollment,
     CourseModule,
+    FeedbackRequest,
     Lesson,
+    LessonProgress,
+    Notification,
     ProgrammingTask,
     Quiz,
+    QuizAttempt,
     QuizOption,
     QuizQuestion,
     Role,
+    Submission,
+    SystemSetting,
     TaskTestCase,
     User,
 )
@@ -44,17 +50,18 @@ def seed_demo():
     db.session.flush()
 
     accounts = [
-        ("admin@pythonstudy.local", "Администратор", "Системы", "Admin123!", roles["admin"]),
-        ("teacher@pythonstudy.local", "Анна", "Преподаватель", "Teacher123!", roles["teacher"]),
-        ("student@pythonstudy.local", "Иван", "Студент", "Student123!", roles["student"]),
+        ("admin", "admin@pythonstudy.local", "Администратор", "Системы", "admin", roles["admin"]),
+        ("teacher", "teacher@pythonstudy.local", "Анна", "Преподаватель", "teacher", roles["teacher"]),
+        ("student", "student@pythonstudy.local", "Иван", "Студент", "student", roles["student"]),
     ]
     users = {}
-    for email, first_name, last_name, password, role in accounts:
+    for username, email, first_name, last_name, password, role in accounts:
         user = User.query.filter_by(email=email).first()
         if not user:
-            user = User(email=email, first_name=first_name, last_name=last_name, role=role)
-            user.set_password(password)
+            user = User(username=username, email=email, first_name=first_name, last_name=last_name, role=role)
             db.session.add(user)
+        user.username = username
+        user.set_password(password)
         users[email] = user
     db.session.flush()
 
@@ -224,7 +231,79 @@ def seed_demo():
         user_id=users["student@pythonstudy.local"].id,
     ).first()
     if not enrollment:
-        db.session.add(CourseEnrollment(course_id=course.id, user_id=users["student@pythonstudy.local"].id))
+        enrollment = CourseEnrollment(course_id=course.id, user_id=users["student@pythonstudy.local"].id)
+        db.session.add(enrollment)
+
+    first_lesson = course.modules[0].lessons[0]
+    first_task = first_lesson.tasks[0]
+    student = users["student@pythonstudy.local"]
+    if not LessonProgress.query.filter_by(user_id=student.id, lesson_id=first_lesson.id).first():
+        db.session.add(LessonProgress(
+            user_id=student.id,
+            lesson_id=first_lesson.id,
+            status="completed",
+            started_at=utcnow(),
+            completed_at=utcnow(),
+        ))
+    if not Submission.query.filter_by(user_id=student.id, task_id=first_task.id).first():
+        db.session.add(Submission(
+            user_id=student.id,
+            task_id=first_task.id,
+            code=first_task.reference_solution or "print('PYTHON')",
+            status="accepted",
+            score=100,
+            passed_tests=len(first_task.test_cases),
+            total_tests=len(first_task.test_cases),
+            stdout="PYTHON\n",
+            checked_at=utcnow(),
+        ))
+    first_quiz = course.quizzes[0]
+    if not QuizAttempt.query.filter_by(user_id=student.id, quiz_id=first_quiz.id).first():
+        db.session.add(QuizAttempt(
+            user_id=student.id,
+            quiz_id=first_quiz.id,
+            attempt_number=1,
+            status="completed",
+            score=80,
+            correct_answers=4,
+            total_questions=5,
+            finished_at=utcnow(),
+        ))
+    if not Notification.query.filter_by(user_id=student.id, notification_type="welcome").first():
+        db.session.add(Notification(
+            user_id=student.id,
+            notification_type="welcome",
+            title="Добро пожаловать в PythonStudy",
+            message="Демонстрационный курс уже добавлен в ваш личный кабинет.",
+            link="/student/dashboard",
+        ))
+    if not FeedbackRequest.query.filter_by(user_id=student.id, subject="Демонстрационное обращение").first():
+        db.session.add(FeedbackRequest(
+            user_id=student.id,
+            email=student.email,
+            category="technical",
+            subject="Демонстрационное обращение",
+            message="Проверка раздела обратной связи в тестовой базе.",
+            status="new",
+        ))
+
+    default_settings = {
+        "site_name": ("PythonStudy", "string", "general"),
+        "registration_enabled": ("true", "boolean", "registration"),
+        "code_time_limit": ("2", "integer", "code_execution"),
+        "code_memory_limit": ("128", "integer", "code_execution"),
+        "passing_score": ("70", "integer", "education"),
+        "notifications_enabled": ("true", "boolean", "notifications"),
+        "max_file_size_mb": ("10", "integer", "files"),
+    }
+    for key, (value, value_type, group_name) in default_settings.items():
+        if not SystemSetting.query.filter_by(setting_key=key).first():
+            db.session.add(SystemSetting(
+                setting_key=key,
+                setting_value=value,
+                value_type=value_type,
+                group_name=group_name,
+            ))
 
     achievements = [
         ("first_lesson", "Первый урок", "Завершен первый урок", "completed_lessons", 1),

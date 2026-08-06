@@ -45,3 +45,11 @@ def test_trial_run_is_written_to_audit_log(client, app):
         event = AuditLog.query.filter_by(action="code.run", user_id=1).first()
         assert event is not None
         assert event.details["status"] == "accepted"
+
+
+def test_code_execution_can_be_disabled(client, app):
+    login(client, "student@test.local", "Student123!")
+    app.config["CODE_EXECUTION_ENABLED"] = False
+    response = client.post("/api/code/run", json={"code": "print('ok')"})
+    assert response.status_code == 503
+    assert "отключено" in response.get_json()["error"]

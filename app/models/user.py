@@ -22,6 +22,7 @@ class User(UserMixin, TimestampMixin, db.Model):
 
     id = db.Column(db.BigInteger().with_variant(db.Integer, "sqlite"), primary_key=True)
     role_id = db.Column(db.BigInteger().with_variant(db.Integer, "sqlite"), db.ForeignKey("roles.id"), nullable=False)
+    username = db.Column(db.String(80), unique=True, index=True)
     email = db.Column(db.String(255), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)

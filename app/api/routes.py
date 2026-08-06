@@ -1,4 +1,4 @@
-from flask import jsonify, request
+from flask import current_app, jsonify, request
 from flask_login import current_user, login_required
 
 from . import bp
@@ -27,6 +27,8 @@ def _student_access(task):
 @bp.route("/code/run", methods=["POST"])
 @login_required
 def code_run():
+    if not current_app.config["CODE_EXECUTION_ENABLED"]:
+        return jsonify({"error": "Выполнение кода временно отключено"}), 503
     payload = request.get_json(silent=True) or {}
     code = payload.get("code", "")
     input_data = payload.get("input", "")
@@ -54,6 +56,8 @@ def code_run():
 @bp.route("/tasks/<int:task_id>/submit", methods=["POST"])
 @login_required
 def task_submit(task_id):
+    if not current_app.config["CODE_EXECUTION_ENABLED"]:
+        return jsonify({"error": "Проверка решений временно отключена"}), 503
     task = ProgrammingTask.query.filter_by(id=task_id, status="published").first_or_404()
     if not _student_access(task):
         return jsonify({"error": "Доступ запрещен"}), 403

@@ -1,4 +1,4 @@
-from flask import abort, flash, redirect, render_template, request, send_file, url_for
+from flask import abort, flash, jsonify, redirect, render_template, request, send_file, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import func, or_, select
 
@@ -14,6 +14,12 @@ from ..services.file_service import remove_upload, save_upload
 def index():
     courses = Course.query.filter_by(status="published").order_by(Course.published_at.desc()).limit(6).all()
     return render_template("public/index.html", courses=courses)
+
+
+@bp.route("/health")
+def health():
+    db.session.execute(select(1)).scalar_one()
+    return jsonify({"status": "ok"})
 
 
 @bp.route("/courses")

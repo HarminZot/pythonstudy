@@ -5,6 +5,7 @@ from urllib.parse import urljoin, urlsplit
 
 from flask import flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_user, logout_user
+from sqlalchemy import or_
 
 from . import bp
 from .forms import ForgotPasswordForm, LoginForm, RegisterForm, ResetPasswordForm
@@ -29,7 +30,8 @@ def login():
         return redirect(url_for("student.dashboard" if current_user.has_role("student") else "public.index"))
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data.lower().strip()).first()
+        identifier = form.email.data.lower().strip()
+        user = User.query.filter(or_(User.email == identifier, User.username == identifier)).first()
         if not user or not user.check_password(form.password.data):
             flash("Неверная электронная почта или пароль.", "danger")
         elif not user.is_active_account:

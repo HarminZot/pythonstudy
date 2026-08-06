@@ -9,6 +9,16 @@ def test_login_success(client):
     assert "Здравствуйте" in response.get_data(as_text=True)
 
 
+def test_login_accepts_username(client, app):
+    with app.app_context():
+        user = User.query.filter_by(email="admin@test.local").one()
+        user.username = "admin"
+        db.session.commit()
+    response = login(client, "admin", "Admin123!")
+    assert response.status_code == 200
+    assert "PythonStudy" in response.get_data(as_text=True)
+
+
 def test_login_rejects_bad_password(client):
     response = login(client, "student@test.local", "wrong-password")
     assert "Неверная" in response.get_data(as_text=True)

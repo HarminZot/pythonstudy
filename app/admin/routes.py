@@ -40,12 +40,15 @@ def user_create():
     roles = Role.query.order_by(Role.name).all()
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
+        username = request.form.get("username", "").strip().lower() or None
         password = request.form.get("password", "")
         role = Role.query.filter_by(code=request.form.get("role_code", "student")).first()
         if not email or "@" not in email:
             flash("Укажите корректный email.", "danger")
         elif User.query.filter_by(email=email).first():
             flash("Пользователь с таким email уже существует.", "danger")
+        elif username and User.query.filter_by(username=username).first():
+            flash("Пользователь с таким логином уже существует.", "danger")
         elif len(password) < 8:
             flash("Пароль должен содержать не менее 8 символов.", "danger")
         elif not role:
@@ -53,6 +56,7 @@ def user_create():
         else:
             user = User(
                 role=role,
+                username=username,
                 email=email,
                 last_name=request.form.get("last_name", "").strip() or "Пользователь",
                 first_name=request.form.get("first_name", "").strip() or "Новый",
@@ -75,10 +79,16 @@ def user_create():
 def user_edit(user_id):
     user = User.query.get_or_404(user_id)
     if request.method == "POST":
+        username = request.form.get("username", "").strip().lower() or None
+        duplicate_username = username and User.query.filter(User.username == username, User.id != user.id).first()
+        if duplicate_username:
+            flash("Пользователь с таким логином уже существует.", "danger")
+            return redirect(url_for("admin.user_edit", user_id=user.id))
         role = Role.query.filter_by(code=request.form.get("role_code")).first()
         if role:
             user.role = role
         user.status = request.form.get("status", user.status)
+        user.username = username
         user.last_name = request.form.get("last_name", user.last_name).strip()
         user.first_name = request.form.get("first_name", user.first_name).strip()
         password = request.form.get("password", "")

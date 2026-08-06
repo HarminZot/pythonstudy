@@ -6,6 +6,10 @@
     <form method="post" class="form-card">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <label>
+        Логин
+        <input name="username" value="{{ request.form.get('username', '') }}">
+      </label>
+      <label>
         Email
         <input type="email" name="email" value="{{ request.form.get('email', '') }}" required>
       </label>

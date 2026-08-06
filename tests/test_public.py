@@ -4,6 +4,12 @@ def test_index_available(client):
     assert "PythonStudy" in response.get_data(as_text=True)
 
 
+def test_health_check(client):
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.get_json() == {"status": "ok"}
+
+
 def test_course_catalog(client):
     response = client.get("/courses")
     assert response.status_code == 200

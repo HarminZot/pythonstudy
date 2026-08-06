@@ -1,6 +1,7 @@
 __pycache__/
 *.py[cod]
 *.db
+!data/pythonstudy.db
 .env
 .venv/
 venv/
@@ -8,6 +9,9 @@ venv/
 .coverage
 htmlcov/
 instance/
+data/*
+!data/.gitkeep
+!data/pythonstudy.db
 storage/uploads/*
 !storage/uploads/.gitkeep
 storage/generated/*

@@ -6,6 +6,10 @@
     <form method="post" class="form-card">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <label>
+        Логин
+        <input name="username" value="{{ user.username or '' }}">
+      </label>
+      <label>
         Фамилия
         <input name="last_name" value="{{ user.last_name }}">
       </label>

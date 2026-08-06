@@ -26,3 +26,7 @@ docker compose exec web flask --app run.py seed-demo
 ## Публичный хостинг
 
 На хостинге задаются переменные `APP_CONFIG=production`, `SECRET_KEY` и `DATABASE_URL`. Команда запуска: `gunicorn --bind 0.0.0.0:$PORT wsgi:app`.
+
+## PythonAnywhere
+
+Для PythonAnywhere используется SQLite, постоянный каталог данных и классический WSGI-файл. Полная инструкция находится в [PYTHONANYWHERE.md](PYTHONANYWHERE.md).

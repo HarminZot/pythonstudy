@@ -1,4 +1,4 @@
-from app.models import Achievement, Course, ProgrammingTask, Quiz, QuizQuestion, TaskTestCase
+from app.models import Achievement, Course, FeedbackRequest, Notification, ProgrammingTask, Quiz, QuizQuestion, Submission, TaskTestCase, User
 
 
 def test_seed_demo_creates_complete_training_program(runner, app):
@@ -16,3 +16,8 @@ def test_seed_demo_creates_complete_training_program(runner, app):
         assert len(quizzes) == 8
         assert QuizQuestion.query.filter(QuizQuestion.quiz_id.in_([quiz.id for quiz in quizzes])).count() == 40
         assert Achievement.query.count() >= 8
+        admin = User.query.filter_by(username="admin").one()
+        assert admin.check_password("admin")
+        assert Submission.query.count() >= 1
+        assert Notification.query.count() >= 1
+        assert FeedbackRequest.query.count() >= 1
