@@ -179,3 +179,4 @@ th { color: #475467; background: #f8f9fc; font-size: .85rem; }
 .empty { padding: 28px; border: 1px dashed #bbc4d5; border-radius: 14px; color: var(--muted); background: rgba(255,255,255,.55); }
 .error-page { width: min(600px, 100%); margin: 70px auto; text-align: center; }
 .error-page > strong { font-size: 6rem; line-height: 1; color: #ccd3e4; }
+ .profile-avatar { width: 128px; height: 128px; object-fit: cover; border-radius: 50%; border: 4px solid var(--surface, #fff); box-shadow: 0 4px 18px rgba(0, 0, 0, .12); margin-bottom: 1rem; }

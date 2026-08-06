@@ -15,6 +15,7 @@ from ..services.achievement_service import evaluate_achievements
 from ..services.access_service import lesson_is_unlocked, ordered_published_lessons
 from ..services.export_service import build_certificate_pdf, build_student_docx, build_student_xlsx
 from ..services.helpers import utcnow
+from ..services.file_service import save_upload
 from ..services.progress_service import calculate_course_progress
 from ..services.statistics_service import student_statistics
 
@@ -277,6 +278,14 @@ def profile():
         current_user.last_name = request.form.get("last_name", "").strip() or current_user.last_name
         current_user.first_name = request.form.get("first_name", "").strip() or current_user.first_name
         current_user.middle_name = request.form.get("middle_name", "").strip() or None
+        avatar = request.files.get("avatar")
+        if avatar and avatar.filename:
+            extension = avatar.filename.rsplit(".", 1)[-1].lower()
+            if extension not in {"png", "jpg", "jpeg", "webp"}:
+                flash("Для аватара разрешены PNG, JPG и WEBP.", "danger")
+                return redirect(url_for("student.profile"))
+            stored = save_upload(avatar, current_user.id, "avatars")
+            current_user.avatar_path = stored.storage_path
         new_password = request.form.get("new_password", "")
         if new_password:
             if len(new_password) < 8:
@@ -287,6 +296,16 @@ def profile():
         flash("Профиль обновлен.", "success")
         return redirect(url_for("student.profile"))
     return render_template("student/profile.html", breadcrumbs=[("Главная", "public.index"), ("Профиль", None)])
+
+
+@bp.route("/users/<int:user_id>/avatar")
+def avatar(user_id):
+    from ..models import User
+
+    user = User.query.get_or_404(user_id)
+    if not user.avatar_path:
+        abort(404)
+    return send_file(user.avatar_path, conditional=True, max_age=3600)
 
 
 @bp.route("/export/xlsx")
